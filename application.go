@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
@@ -25,7 +26,7 @@ func init() {
 	}
 
 	dbDriver = os.Getenv("DB_DRIVER")
-	dbSource = os.Getenv("LOCAL_DB_SOURCE")
+	dbSource = os.Getenv("SKROMAN_DB")
 	address = os.Getenv("LOCAL_ADDRESS")
 }
 
@@ -38,11 +39,14 @@ func CORSConfig() cors.Config {
 	return corsConfig
 }
 func main() {
+	fmt.Println("connecting to db")
 	db, err := sql.Open(dbDriver, dbSource)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	//fmt.Println("connection has been established..", db)
 
 	router := gin.Default()
 	store := apis.NewStore(db)
