@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/aniket-skroman/skroman-user-service/apis"
@@ -26,7 +28,7 @@ func init() {
 	}
 
 	dbDriver = os.Getenv("DB_DRIVER")
-	dbSource = os.Getenv("SKROMAN_DB")
+	dbSource = os.Getenv("LOCAL_DB_SOURCE")
 	address = os.Getenv("LOCAL_ADDRESS")
 }
 
@@ -50,6 +52,10 @@ func main() {
 
 	router := gin.Default()
 	store := apis.NewStore(db)
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode("application run success...")
+	})
 
 	routers.UserRouters(router, store)
 
