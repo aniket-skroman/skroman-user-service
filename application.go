@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/aniket-skroman/skroman-user-service/apis"
 	"github.com/aniket-skroman/skroman-user-service/apis/routers"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -32,14 +30,14 @@ func init() {
 	address = os.Getenv("LOCAL_ADDRESS")
 }
 
-func CORSConfig() cors.Config {
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
-	corsConfig.AllowCredentials = true
-	corsConfig.AddAllowHeaders("Access-Control-Allow-Headers", "access-control-allow-origin, access-control-allow-headers", "Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization")
-	corsConfig.AddAllowMethods("GET", "POST", "PUT", "DELETE")
-	return corsConfig
-}
+const (
+	ContentTypeBinary = "application/octet-stream"
+	ContentTypeForm   = "application/x-www-form-urlencoded"
+	ContentTypeJSON   = "application/json"
+	ContentTypeHTML   = "text/html; charset=utf-8"
+	ContentTypeText   = "text/plain; charset=utf-8"
+)
+
 func main() {
 	fmt.Println("connecting to db")
 	db, err := sql.Open(dbDriver, dbSource)
@@ -53,8 +51,8 @@ func main() {
 	router := gin.Default()
 	store := apis.NewStore(db)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode("application run success...")
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.Data(http.StatusOK, ContentTypeHTML, []byte("<html>Program file run...</html>"))
 	})
 
 	routers.UserRouters(router, store)
