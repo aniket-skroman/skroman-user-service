@@ -10,7 +10,9 @@ import (
 
 type UserRepository interface {
 	Init() (context.Context, context.CancelFunc)
-	CreateNewUser(args db.CreateNewUserParams) (db.Users, error)
+	CreateNewUser(db.CreateNewUserParams) (db.Users, error)
+	CheckDuplicateUser(db.CheckFullNameAndMailIDParams) (int64, error)
+	FetchUserByMultipleTag(string) (db.Users, error)
 }
 
 type user_repository struct {

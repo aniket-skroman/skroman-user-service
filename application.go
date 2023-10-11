@@ -1,10 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 
+	"github.com/aniket-skroman/skroman-user-service/apis"
+	"github.com/aniket-skroman/skroman-user-service/apis/routers"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -34,5 +38,18 @@ func CORSConfig() cors.Config {
 	return corsConfig
 }
 func main() {
+	db, err := sql.Open(dbDriver, dbSource)
 
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	router := gin.Default()
+	store := apis.NewStore(db)
+
+	routers.UserRouters(router, store)
+
+	if err := router.Run(address); err != nil {
+		log.Fatal(err)
+	}
 }

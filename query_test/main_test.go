@@ -7,15 +7,8 @@ import (
 	"testing"
 
 	sqlc_lib "github.com/aniket-skroman/skroman-user-service/sqlc_lib"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
-
-func init() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Fatal(err)
-	}
-}
 
 var (
 	db_driver   = "postgres"

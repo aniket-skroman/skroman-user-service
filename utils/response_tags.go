@@ -46,7 +46,9 @@ var USER_TYPE = ""
 
 // DATA --------------- Response Key Words ------------//
 const DATA = "app_data"
-const USER_DATA = "user_data"
+
+var USER_DATA = "user_data"
+
 const PERMISSION_DATA = "permissions"
 const USER_PERMISSION = "user_permission"
 const MODULE_DATA = "module_data"

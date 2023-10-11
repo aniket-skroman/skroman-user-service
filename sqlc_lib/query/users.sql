@@ -14,3 +14,8 @@ insert into users (
 select * from users
 where email=$1 or contact = $1
 limit 1;
+
+-- name: CheckFullNameAndMailID :execrows
+select * from users
+where email=$1 or full_name=$2
+limit 1;

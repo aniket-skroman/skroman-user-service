@@ -10,13 +10,15 @@ import (
 
 func UserRouters(router *gin.Engine, store *apis.Store) {
 	var (
-		user_repo = repositories.NewUserRepository(store)
-		user_serv = services.NewUserService(user_repo)
-		user_cont = controller.NewUserController(user_serv)
+		user_repo   = repositories.NewUserRepository(store)
+		jwt_service = services.NewJWTService()
+		user_serv   = services.NewUserService(user_repo, jwt_service)
+		user_cont   = controller.NewUserController(user_serv)
 	)
 
 	user_auth := router.Group("/api")
 	{
 		user_auth.POST("/create-user", user_cont.CreateNewUser)
+		user_auth.GET("/login-user", user_cont.LoginUser)
 	}
 }
