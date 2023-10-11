@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/aniket-skroman/skroman-user-service/apis"
 	"github.com/aniket-skroman/skroman-user-service/apis/routers"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -21,13 +19,13 @@ var (
 )
 
 func init() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Fatal(err)
-	}
+	// if err := godotenv.Load(".env"); err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	dbDriver = os.Getenv("DB_DRIVER")
-	dbSource = os.Getenv("LOCAL_DB_SOURCE")
-	address = os.Getenv("LOCAL_ADDRESS")
+	// dbDriver = os.Getenv("DB_DRIVER")
+	// dbSource = os.Getenv("LOCAL_DB_SOURCE")
+	// address = os.Getenv("LOCAL_ADDRESS")
 }
 
 const (
