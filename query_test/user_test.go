@@ -7,6 +7,7 @@ import (
 
 	db "github.com/aniket-skroman/skroman-user-service/sqlc_lib"
 	"github.com/aniket-skroman/skroman-user-service/utils"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -51,4 +52,64 @@ func TestCheckFullNameAndMailID(t *testing.T) {
 
 	require.NoError(t, err)
 	require.NotZero(t, count)
+}
+
+func TestFetchAllUsers(t *testing.T) {
+	args := db.FetchAllUsersParams{
+		Limit:  10,
+		Offset: 0,
+	}
+
+	users, err := testQueries.FetchAllUsers(context.Background(), args)
+
+	require.NoError(t, err)
+	fmt.Println("Users : ", users)
+	require.NotEmpty(t, users)
+
+}
+
+func TestUpdateUser(t *testing.T) {
+	user_id, err := uuid.Parse("72577a45-a4dc-4734-a74c-f2102e9e1381")
+
+	require.NoError(t, err)
+
+	tx, err := testDB.Begin()
+	require.NoError(t, err)
+
+	qtx := testQueries.WithTx(tx)
+
+	require.NotEmpty(t, qtx)
+
+	// first check for new contact is a unique
+	cont_args := db.CheckForContactParams{
+		Contact: "7720830160",
+		ID:      user_id,
+	}
+
+	user, err := qtx.CheckForContact(context.Background(), cont_args)
+
+	require.Error(t, err)
+	require.Empty(t, user)
+
+	args := db.UpdateUserParams{
+		ID:       user_id,
+		FullName: "test",
+		Contact:  "7720830160",
+		UserType: "EMP",
+	}
+
+	result, err := qtx.UpdateUser(context.Background(), args)
+
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+
+	affected_rows, err := result.RowsAffected()
+	require.NoError(t, err)
+	require.NotEqual(t, affected_rows, 0)
+
+	tx.Commit()
 }

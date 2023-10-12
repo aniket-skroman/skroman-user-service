@@ -2,10 +2,12 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/aniket-skroman/skroman-user-service/apis"
 	db "github.com/aniket-skroman/skroman-user-service/sqlc_lib"
+	"github.com/google/uuid"
 )
 
 type UserRepository interface {
@@ -13,6 +15,10 @@ type UserRepository interface {
 	CreateNewUser(db.CreateNewUserParams) (db.Users, error)
 	CheckDuplicateUser(db.CheckFullNameAndMailIDParams) (int64, error)
 	FetchUserByMultipleTag(string) (db.Users, error)
+	UpdateUser(db.UpdateUserParams) (sql.Result, error)
+	CheckForContact(db.CheckForContactParams) (db.Users, error)
+	FetchAllUsers(args db.FetchAllUsersParams) ([]db.Users, error)
+	DeleteUser(userId uuid.UUID) (int64, error)
 }
 
 type user_repository struct {

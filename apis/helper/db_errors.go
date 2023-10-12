@@ -11,6 +11,7 @@ import (
 func Handle_DBError(err error) (err_ error) {
 	switch e := err.(type) {
 	case *pq.Error:
+		fmt.Println("PQ Code : ", e.Code)
 		switch e.Code {
 		case "23502":
 			// not-null constraint violation
@@ -41,6 +42,10 @@ func Handle_DBError(err error) (err_ error) {
 			// return
 		case "23503":
 			err_ = errors.New("invalid id has been provided,please try with valid id's")
+			return
+		case "2201X":
+			// when offset, limit not working, for pagination data
+			err_ = errors.New("invalid pagination found")
 			return
 		default:
 			msg := e.Message

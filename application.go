@@ -7,6 +7,7 @@ import (
 
 	"github.com/aniket-skroman/skroman-user-service/apis"
 	"github.com/aniket-skroman/skroman-user-service/apis/routers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
@@ -16,6 +17,15 @@ var (
 	dbSource = "postgresql://postgres:support12@skroman-user.ckwveljlsuux.ap-south-1.rds.amazonaws.com:5432/skroman_users"
 	address  = ":8080"
 )
+
+func CORSConfig() cors.Config {
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+	corsConfig.AllowCredentials = true
+	corsConfig.AddAllowHeaders("Access-Control-Allow-Headers", "access-control-allow-origin, access-control-allow-headers", "Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization")
+	corsConfig.AddAllowMethods("GET", "POST", "PUT", "DELETE")
+	return corsConfig
+}
 
 func init() {
 	// if err := godotenv.Load(".env"); err != nil {

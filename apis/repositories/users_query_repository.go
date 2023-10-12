@@ -1,7 +1,10 @@
 package repositories
 
 import (
+	"database/sql"
+
 	db "github.com/aniket-skroman/skroman-user-service/sqlc_lib"
+	"github.com/google/uuid"
 )
 
 func (repo *user_repository) CreateNewUser(args db.CreateNewUserParams) (db.Users, error) {
@@ -21,4 +24,32 @@ func (repo *user_repository) FetchUserByMultipleTag(tag string) (db.Users, error
 	ctx, cancel := repo.Init()
 	defer cancel()
 	return repo.db.Queries.GetUserByEmailOrContact(ctx, tag)
+}
+
+func (repo *user_repository) UpdateUser(args db.UpdateUserParams) (sql.Result, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.UpdateUser(ctx, args)
+}
+
+func (repo *user_repository) CheckForContact(args db.CheckForContactParams) (db.Users, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.CheckForContact(ctx, args)
+}
+
+func (repo *user_repository) FetchAllUsers(args db.FetchAllUsersParams) ([]db.Users, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.FetchAllUsers(ctx, args)
+}
+
+func (repo *user_repository) DeleteUser(userId uuid.UUID) (int64, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.DeleteUser(ctx, userId)
 }

@@ -17,3 +17,7 @@ func NewStore(dbs *sql.DB) *Store {
 		Queries: db.New(dbs),
 	}
 }
+
+func (s *Store) DBTransaction() (*sql.Tx, error) {
+	return s.db.Begin()
+}

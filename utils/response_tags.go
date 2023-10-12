@@ -19,7 +19,7 @@ const UPDATE_SUCCESS = "Update successful."
 const PASSWORD_RESET = "Password reset successful."
 const FORGOT_PASSWORD = "Forgot password successful."
 const LOGIN_SUCCESS = "Login successful."
-const DATA_NOT_FOUND = "Data not found."
+const DATA_NOT_FOUND = "data not found"
 const DATA_FOUND = "Data found."
 
 // FAILED_PROCESS -------------- COMMON MESSAGES ----------------//

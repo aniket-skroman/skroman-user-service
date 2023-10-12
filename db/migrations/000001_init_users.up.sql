@@ -1,6 +1,6 @@
 create table users (
     "id" uuid default uuid_generate_v4 () primary key,
-    "full_name" varchar UNIQUE NOT NULL,
+    "full_name" varchar NOT NULL,
     "email" varchar UNIQUE NOT NULL ,
     "password" varchar NOT NULL,
     "contact" varchar NOT NULL,

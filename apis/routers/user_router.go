@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/aniket-skroman/skroman-user-service/apis"
 	"github.com/aniket-skroman/skroman-user-service/apis/controller"
+	"github.com/aniket-skroman/skroman-user-service/apis/middleware"
 	"github.com/aniket-skroman/skroman-user-service/apis/repositories"
 	"github.com/aniket-skroman/skroman-user-service/apis/services"
 	"github.com/gin-gonic/gin"
@@ -20,5 +21,11 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 	{
 		user_auth.POST("/create-user", user_cont.CreateNewUser)
 		user_auth.GET("/login-user", user_cont.LoginUser)
+	}
+
+	user := router.Group("/api", middleware.AuthorizeJWT(jwt_service))
+	{
+		user.PUT("/update-user", user_cont.UpdateUser)
+		user.GET("/fetch-users/:page_id/:page_size", user_cont.FetchAllUsers)
 	}
 }
