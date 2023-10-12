@@ -13,12 +13,12 @@ import (
 type UserRepository interface {
 	Init() (context.Context, context.CancelFunc)
 	CreateNewUser(db.CreateNewUserParams) (db.Users, error)
-	CheckDuplicateUser(db.CheckFullNameAndMailIDParams) (int64, error)
+	CheckDuplicateUser(db.CheckEmailOrContactExistsParams) (int64, error)
 	FetchUserByMultipleTag(string) (db.Users, error)
 	UpdateUser(db.UpdateUserParams) (sql.Result, error)
 	CheckForContact(db.CheckForContactParams) (db.Users, error)
-	FetchAllUsers(args db.FetchAllUsersParams) ([]db.Users, error)
-	DeleteUser(userId uuid.UUID) (int64, error)
+	FetchAllUsers(db.FetchAllUsersParams) ([]db.Users, error)
+	DeleteUser(uuid.UUID) (int64, error)
 	CountUsers() (int64, error)
 }
 

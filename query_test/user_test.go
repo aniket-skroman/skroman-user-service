@@ -42,18 +42,6 @@ func TestGetUserByMultipleTags(t *testing.T) {
 	fmt.Println("user found : ", user)
 }
 
-func TestCheckFullNameAndMailID(t *testing.T) {
-	args := db.CheckFullNameAndMailIDParams{
-		Email:    "test-user1@gmail.com",
-		FullName: "test-user",
-	}
-
-	count, err := testQueries.CheckFullNameAndMailID(context.Background(), args)
-
-	require.NoError(t, err)
-	require.NotZero(t, count)
-}
-
 func TestFetchAllUsers(t *testing.T) {
 	args := db.FetchAllUsersParams{
 		Limit:  10,

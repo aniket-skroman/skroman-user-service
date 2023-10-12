@@ -41,12 +41,11 @@ func (ser *user_service) CreateNewUser(req dtos.CreateUserRequestDTO) (dtos.User
 	}
 
 	//		check for duplicate account create
-	dup_args := db.CheckFullNameAndMailIDParams{
-		Email:    req.Email,
-		FullName: req.FullName,
+	dupl_args := db.CheckEmailOrContactExistsParams{
+		Email:   req.Email,
+		Contact: req.Contact,
 	}
-
-	result, err := ser.user_repo.CheckDuplicateUser(dup_args)
+	result, err := ser.user_repo.CheckDuplicateUser(dupl_args)
 
 	if err != nil {
 		return dtos.UserDTO{}, err
@@ -54,6 +53,8 @@ func (ser *user_service) CreateNewUser(req dtos.CreateUserRequestDTO) (dtos.User
 	if result != 0 {
 		return dtos.UserDTO{}, errors.New("this account already exits")
 	}
+
+	// check for duplicate
 
 	hash_password := utils.Hash_password(req.Password)
 

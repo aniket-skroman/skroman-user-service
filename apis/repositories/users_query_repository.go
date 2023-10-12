@@ -13,11 +13,11 @@ func (repo *user_repository) CreateNewUser(args db.CreateNewUserParams) (db.User
 	return repo.db.Queries.CreateNewUser(ctx, args)
 }
 
-func (repo *user_repository) CheckDuplicateUser(args db.CheckFullNameAndMailIDParams) (int64, error) {
+func (repo *user_repository) CheckDuplicateUser(args db.CheckEmailOrContactExistsParams) (int64, error) {
 	ctx, cancel := repo.Init()
 	defer cancel()
 
-	return repo.db.Queries.CheckFullNameAndMailID(ctx, args)
+	return repo.db.Queries.CheckEmailOrContactExists(ctx, args)
 }
 
 func (repo *user_repository) FetchUserByMultipleTag(tag string) (db.Users, error) {

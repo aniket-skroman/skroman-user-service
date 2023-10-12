@@ -12,6 +12,25 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkEmailOrContactExists = `-- name: CheckEmailOrContactExists :execrows
+select id, full_name, email, password, contact, user_type, created_at, updated_at from users
+where email=$1 or contact=$2
+limit 1
+`
+
+type CheckEmailOrContactExistsParams struct {
+	Email   string `json:"email"`
+	Contact string `json:"contact"`
+}
+
+func (q *Queries) CheckEmailOrContactExists(ctx context.Context, arg CheckEmailOrContactExistsParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, checkEmailOrContactExists, arg.Email, arg.Contact)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const checkForContact = `-- name: CheckForContact :one
 select id, full_name, email, password, contact, user_type, created_at, updated_at from users 
 where contact = $1
@@ -37,25 +56,6 @@ func (q *Queries) CheckForContact(ctx context.Context, arg CheckForContactParams
 		&i.UpdatedAt,
 	)
 	return i, err
-}
-
-const checkFullNameAndMailID = `-- name: CheckFullNameAndMailID :execrows
-select id, full_name, email, password, contact, user_type, created_at, updated_at from users
-where email=$1 or full_name=$2
-limit 1
-`
-
-type CheckFullNameAndMailIDParams struct {
-	Email    string `json:"email"`
-	FullName string `json:"full_name"`
-}
-
-func (q *Queries) CheckFullNameAndMailID(ctx context.Context, arg CheckFullNameAndMailIDParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, checkFullNameAndMailID, arg.Email, arg.FullName)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
 }
 
 const countUsers = `-- name: CountUsers :one

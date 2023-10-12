@@ -25,7 +25,7 @@ func TestCreaUserAPI(t *testing.T) {
 		{TestName: "First",
 			RequestBody: db.CreateNewUserParams{
 				FullName: utils.RandomString(7),
-				Email:    "aniket@gmail.com",
+				Email:    fmt.Sprintf("%s@gmail.com", utils.RandomString(5)),
 				Password: "user123",
 				Contact:  "1234567890",
 				UserType: "ADMIN",
@@ -88,7 +88,9 @@ func TestCreaUserAPI(t *testing.T) {
 
 	debug_logger := log.New(log_file, "DEBUG : ", log.Flags())
 
-	url := "http://13.233.196.149:8080/api/create-user"
+	// url := "http://13.233.196.149:8080/api/create-user"
+	url := "http://localhost:8080/api/create-user"
+
 	for _, arg := range args {
 		t.Run(arg.TestName, func(t *testing.T) {
 			req_body, err := json.Marshal(arg.RequestBody)

@@ -15,9 +15,9 @@ select * from users
 where email=$1 or contact = $1
 limit 1;
 
--- name: CheckFullNameAndMailID :execrows
+-- name: CheckEmailOrContactExists :execrows
 select * from users
-where email=$1 or full_name=$2
+where email=$1 or contact=$2
 limit 1;
 
 -- name: CountUsers :one
