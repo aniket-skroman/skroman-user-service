@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/aniket-skroman/skroman-user-service/apis/services"
 	"github.com/aniket-skroman/skroman-user-service/utils"
@@ -21,6 +22,11 @@ func AuthorizeJWT(jwtService services.JWTService) gin.HandlerFunc {
 		_, err := jwtService.ValidateToken(authHeader)
 
 		if err != nil {
+			if strings.Contains(err.Error(), "expired") {
+				response := utils.BuildFailedResponse(err.Error())
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+				return
+			}
 			response := utils.BuildFailedResponse("Invalid token provided !")
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 			return

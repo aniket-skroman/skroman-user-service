@@ -1,0 +1,35 @@
+DEBUG : 2023/10/12 18:24:39 First
+DEBUG : 2023/10/12 18:24:39 REQUEST :  {xvlbzgb aniket@gmail.com user123 1234567890 ADMIN}
+DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"","message":"User registration has been successful","status":true,"user_data":{"id":"2c87109d-52c3-4b2f-b22e-98d61fec12b3","full_name":"xvlbzgb","email":"aniket@gmail.com","contact":"1234567890","user_type":"ADMIN","created_at":"2023-10-12T12:54:39.340599Z","updated_at":"2023-10-12T12:54:39.340599Z"}}
+DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
+DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  201
+DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  201
+DEBUG : 2023/10/12 18:24:39 
+DEBUG : 2023/10/12 18:24:39 Second
+DEBUG : 2023/10/12 18:24:39 REQUEST :  {aicmrajwwhth ctcuaxhx@gmail.com[] user123 1234567890 ADMIN}
+DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"Key: 'CreateUserRequestDTO.Email' Error:Field validation for 'Email' failed on the 'email' tag","message":"failed to process the request.","status":false,"user_data":{}}
+DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
+DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  400
+DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  400
+DEBUG : 2023/10/12 18:24:39 
+DEBUG : 2023/10/12 18:24:39 Third
+DEBUG : 2023/10/12 18:24:39 REQUEST :  {kqfdafplsjfb cxoef@gmail.com  1234567890 ADMIN}
+DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"Key: 'CreateUserRequestDTO.Password' Error:Field validation for 'Password' failed on the 'required' tag","message":"failed to process the request.","status":false,"user_data":{}}
+DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
+DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  400
+DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  400
+DEBUG : 2023/10/12 18:24:39 
+DEBUG : 2023/10/12 18:24:39 Fourth
+DEBUG : 2023/10/12 18:24:39 REQUEST :  {frswxpldnjob csnv@gmail.com  123456789022121 ADMIN}
+DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"Key: 'CreateUserRequestDTO.Password' Error:Field validation for 'Password' failed on the 'required' tag","message":"failed to process the request.","status":false,"user_data":{}}
+DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
+DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  400
+DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  400
+DEBUG : 2023/10/12 18:24:39 
+DEBUG : 2023/10/12 18:24:39 Five
+DEBUG : 2023/10/12 18:24:39 REQUEST :  {lgtemapezqle rohit.dhavale-1@skromanglobal.com user123 7720830172 EMP}
+DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"this account already exits","message":"failed to process the request.","status":false,"user_data":{}}
+DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
+DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  409
+DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  409
+DEBUG : 2023/10/12 18:24:39 

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -70,18 +72,17 @@ func (j *jwtService) ValidateToken(token string) (*jwt.Token, error) {
 		if t.Valid {
 			fmt.Println("token valid ", t)
 		}
-		// byteArr, _ := json.Marshal(t.Claims)
-		// containData := string(byteArr)
+		byteArr, _ := json.Marshal(t.Claims)
 
-		// tokenData := new(jwtCustomClaim)
+		tokenData := new(jwtCustomClaim)
 
-		// json.Unmarshal([]byte(containData), &tokenData)
+		json.Unmarshal(byteArr, &tokenData)
 
-		// diff := time.Now().Sub(tokenData.CreatedAt)
+		d := time.Since(tokenData.CreatedAt)
 
-		// if diff.Abs().Hours() > 24 {
-		// 	return nil, errors.New("token has been expired")
-		// }
+		if d.Hours() > 2 {
+			return nil, errors.New("token has been expired")
+		}
 
 		return []byte(j.secretKey), nil
 	})
