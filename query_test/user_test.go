@@ -113,3 +113,10 @@ func TestUpdateUser(t *testing.T) {
 
 	tx.Commit()
 }
+
+func TestUserCount(t *testing.T) {
+	count, err := testQueries.CountUsers(context.Background())
+
+	require.NoError(t, err)
+	require.NotZero(t, count)
+}

@@ -19,6 +19,7 @@ type UserRepository interface {
 	CheckForContact(db.CheckForContactParams) (db.Users, error)
 	FetchAllUsers(args db.FetchAllUsersParams) ([]db.Users, error)
 	DeleteUser(userId uuid.UUID) (int64, error)
+	CountUsers() (int64, error)
 }
 
 type user_repository struct {

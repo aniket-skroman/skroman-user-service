@@ -45,3 +45,14 @@ func BuildFailedResponse(err string) map[string]interface{} {
 	data = EmptyObj{}
 	return response_builder(false, &FAILED_PROCESS, &err, &USER_DATA, &data, false)
 }
+
+func SetPaginationData(page int, total int64) {
+	if page == 0 {
+		PREVIOUS_IDX = 0
+	} else {
+		PREVIOUS_IDX = page - 1
+	}
+
+	CURRENT_IDX = page
+	TOTALCOUNT = total
+}

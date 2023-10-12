@@ -20,6 +20,9 @@ select * from users
 where email=$1 or full_name=$2
 limit 1;
 
+-- name: CountUsers :one
+select count(*) from users;
+
 -- name: FetchAllUsers :many
 select * from users 
 order by created_at desc 

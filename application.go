@@ -57,7 +57,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(cors.New(CORSConfig()))
+	router.Static("static", "static")
+
 	store := apis.NewStore(db)
 
 	router.GET("/", func(ctx *gin.Context) {

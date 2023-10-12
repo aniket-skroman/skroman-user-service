@@ -53,3 +53,10 @@ func (repo *user_repository) DeleteUser(userId uuid.UUID) (int64, error) {
 
 	return repo.db.Queries.DeleteUser(ctx, userId)
 }
+
+func (repo *user_repository) CountUsers() (int64, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.CountUsers(ctx)
+}
