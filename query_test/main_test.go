@@ -13,7 +13,7 @@ import (
 
 var (
 	db_driver   = "postgres"
-	db_source   = "postgresql://postgres:support12@skroman-support-db.ckwveljlsuux.ap-south-1.rds.amazonaws.com:5432/skroman-support-db?sslmode=disable"
+	db_source   = "postgresql://postgres:support12@skroman-user.ckwveljlsuux.ap-south-1.rds.amazonaws.com:5432/skroman_users"
 	testQueries *sqlc_lib.Queries
 	testDB      *sql.DB
 )

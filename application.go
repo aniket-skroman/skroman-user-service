@@ -1,18 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"database/sql"
 	"log"
 	"net/http"
 
+	"github.com/aniket-skroman/skroman-user-service/apis"
+	"github.com/aniket-skroman/skroman-user-service/apis/routers"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
 var (
-	dbDriver = ""
-	dbSource = ""
-	address  = ""
+	dbDriver = "postgres"
+	dbSource = "postgresql://postgres:support12@skroman-user.ckwveljlsuux.ap-south-1.rds.amazonaws.com:5432/skroman_users"
+	address  = ":8080"
 )
 
 func init() {
@@ -34,23 +36,25 @@ const (
 )
 
 func main() {
-	fmt.Println("connecting to db")
-	// db, err := sql.Open(dbDriver, dbSource)
+	db, err := sql.Open(dbDriver, dbSource)
 
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	//fmt.Println("connection has been established..", db)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	router := gin.Default()
-	//store := apis.NewStore(db)
+	store := apis.NewStore(db)
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.Data(http.StatusOK, ContentTypeHTML, []byte("<html>Program file run...</html>"))
 	})
 
-	//routers.UserRouters(router, store)
+	routers.UserRouters(router, store)
 
 	if err := router.Run(address); err != nil {
 		log.Fatal(err)
