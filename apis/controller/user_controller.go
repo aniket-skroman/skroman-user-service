@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/aniket-skroman/skroman-user-service/apis/dtos"
 	"github.com/aniket-skroman/skroman-user-service/apis/services"
@@ -14,7 +15,8 @@ type UserController interface {
 	CreateNewUser(*gin.Context)
 	LoginUser(*gin.Context)
 	UpdateUser(*gin.Context)
-	FetchAllUsers(ctx *gin.Context)
+	FetchAllUsers(*gin.Context)
+	DeleteUser(*gin.Context)
 }
 
 type user_controller struct {
@@ -118,6 +120,15 @@ func (cont *user_controller) FetchAllUsers(ctx *gin.Context) {
 		return
 	}
 
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		count := cont.user_ser.GetUSersCount()
+		utils.SetPaginationData(int(req.PageID), int64(count))
+	}()
+
 	users, err := cont.user_ser.FetchAllUsers(req)
 
 	if err != nil {
@@ -131,6 +142,29 @@ func (cont *user_controller) FetchAllUsers(ctx *gin.Context) {
 		return
 	}
 
-	response := utils.BuildSuccessResponse(utils.FETCHED_SUCCESS, utils.USER_DATA, users)
+	wg.Wait()
+
+	response := utils.BuildResponseWithPagination(utils.FETCHED_SUCCESS, "", utils.USER_DATA, users)
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (cont *user_controller) DeleteUser(ctx *gin.Context) {
+	var req dtos.DeleteUserRequestDTO
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		response := utils.BuildFailedResponse(err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	err := cont.user_ser.DeleteUser(req)
+
+	if err != nil {
+		response := utils.BuildFailedResponse(err.Error())
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	response := utils.BuildSuccessResponse(utils.DELETE_SUCCESS, utils.USER_DATA, utils.EmptyObj{})
 	ctx.JSON(http.StatusOK, response)
 }

@@ -65,7 +65,6 @@ func TestFetchAllUsers(t *testing.T) {
 	require.NoError(t, err)
 	fmt.Println("Users : ", users)
 	require.NotEmpty(t, users)
-
 }
 
 func TestUpdateUser(t *testing.T) {

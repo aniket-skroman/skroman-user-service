@@ -27,5 +27,6 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 	{
 		user.PUT("/update-user", user_cont.UpdateUser)
 		user.GET("/fetch-users/:page_id/:page_size", user_cont.FetchAllUsers)
+		user.DELETE("/delete-user/:user_id", user_cont.DeleteUser)
 	}
 }

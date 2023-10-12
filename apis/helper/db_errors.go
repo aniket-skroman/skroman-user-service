@@ -60,7 +60,6 @@ func Handle_DBError(err error) (err_ error) {
 			return
 		}
 	default:
-		fmt.Println("Default case is run")
 		err_ = nil
 		return
 	}

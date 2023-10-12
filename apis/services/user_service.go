@@ -20,6 +20,7 @@ type UserService interface {
 	UpdateUser(dtos.UpdateUserRequestDTO) (dtos.UserDTO, error)
 	FetchAllUsers(dtos.GetUsersRequestParams) ([]dtos.UserDTO, error)
 	DeleteUser(dtos.DeleteUserRequestDTO) error
+	GetUSersCount() int32
 }
 
 type user_service struct {
@@ -191,6 +192,9 @@ func (ser *user_service) FetchAllUsers(req dtos.GetUsersRequestParams) ([]dtos.U
 		return users.([]dtos.UserDTO), nil
 	}
 	s_user := users.(dtos.UserDTO)
+
+	//wg.Wait()
+
 	return []dtos.UserDTO{
 		{
 			ID:          s_user.ID,
@@ -223,4 +227,14 @@ func (ser *user_service) DeleteUser(req dtos.DeleteUserRequestDTO) error {
 	}
 
 	return nil
+}
+
+func (ser *user_service) GetUSersCount() int32 {
+	count, err := ser.user_repo.CountUsers()
+
+	if err != nil {
+		return 0
+	}
+	return int32(count)
+
 }
