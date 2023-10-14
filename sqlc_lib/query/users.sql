@@ -46,3 +46,9 @@ and id <> $2;
 -- name: DeleteUser :execrows
 delete from users 
 where id = $1;
+
+
+-- name: GetUserById :one
+select * from users
+where id = $1
+limit 1;

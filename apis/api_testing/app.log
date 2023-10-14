@@ -1,35 +1,25 @@
-DEBUG : 2023/10/12 18:24:39 First
-DEBUG : 2023/10/12 18:24:39 REQUEST :  {xvlbzgb aniket@gmail.com user123 1234567890 ADMIN}
-DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"","message":"User registration has been successful","status":true,"user_data":{"id":"2c87109d-52c3-4b2f-b22e-98d61fec12b3","full_name":"xvlbzgb","email":"aniket@gmail.com","contact":"1234567890","user_type":"ADMIN","created_at":"2023-10-12T12:54:39.340599Z","updated_at":"2023-10-12T12:54:39.340599Z"}}
-DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
-DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  201
-DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  201
-DEBUG : 2023/10/12 18:24:39 
-DEBUG : 2023/10/12 18:24:39 Second
-DEBUG : 2023/10/12 18:24:39 REQUEST :  {aicmrajwwhth ctcuaxhx@gmail.com[] user123 1234567890 ADMIN}
-DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"Key: 'CreateUserRequestDTO.Email' Error:Field validation for 'Email' failed on the 'email' tag","message":"failed to process the request.","status":false,"user_data":{}}
-DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
-DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  400
-DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  400
-DEBUG : 2023/10/12 18:24:39 
-DEBUG : 2023/10/12 18:24:39 Third
-DEBUG : 2023/10/12 18:24:39 REQUEST :  {kqfdafplsjfb cxoef@gmail.com  1234567890 ADMIN}
-DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"Key: 'CreateUserRequestDTO.Password' Error:Field validation for 'Password' failed on the 'required' tag","message":"failed to process the request.","status":false,"user_data":{}}
-DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
-DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  400
-DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  400
-DEBUG : 2023/10/12 18:24:39 
-DEBUG : 2023/10/12 18:24:39 Fourth
-DEBUG : 2023/10/12 18:24:39 REQUEST :  {frswxpldnjob csnv@gmail.com  123456789022121 ADMIN}
-DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"Key: 'CreateUserRequestDTO.Password' Error:Field validation for 'Password' failed on the 'required' tag","message":"failed to process the request.","status":false,"user_data":{}}
-DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
-DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  400
-DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  400
-DEBUG : 2023/10/12 18:24:39 
-DEBUG : 2023/10/12 18:24:39 Five
-DEBUG : 2023/10/12 18:24:39 REQUEST :  {lgtemapezqle rohit.dhavale-1@skromanglobal.com user123 7720830172 EMP}
-DEBUG : 2023/10/12 18:24:39 RESPONSE :  {"error":"this account already exits","message":"failed to process the request.","status":false,"user_data":{}}
-DEBUG : 2023/10/12 18:24:39 RESPONSE ERROR :  <nil>
-DEBUG : 2023/10/12 18:24:39 RESPONSE STATUS CODE :  409
-DEBUG : 2023/10/12 18:24:39 EXPECTED STATUS CODE :  409
-DEBUG : 2023/10/12 18:24:39 
+DEBUG : 2023/10/12 22:45:11 Request BODY :  &{GET http://localhost:8080/api/login-user?email=xvlbzgbaicmr%40gmail.com&password=user123 HTTP/1.1 1 1 map[] <nil> <nil> 0 [] false localhost:8080 map[] map[] <nil> map[]   <nil> <nil> <nil> 0xc000016090}
+DEBUG : 2023/10/12 22:45:11 Response Code :  404
+DEBUG : 2023/10/12 22:45:11 Response BODY :  {"error":"account does not exists","message":"failed to process the request.","status":false,"user_data":{}}
+DEBUG : 2023/10/12 22:45:11 Error :  <nil> true
+DEBUG : 2023/10/12 22:45:11 
+DEBUG : 2023/10/12 22:45:12 Request BODY :  &{GET http://localhost:8080/api/login-user?email=test-user-1%40gmail.com&password=user123 HTTP/1.1 1 1 map[] <nil> <nil> 0 [] false localhost:8080 map[] map[] <nil> map[]   <nil> <nil> <nil> 0xc000016090}
+DEBUG : 2023/10/12 22:45:12 Response Code :  200
+DEBUG : 2023/10/12 22:45:12 Response BODY :  {"error":"","message":"Login successful.","status":true,"user_data":{"id":"6a0daab2-d651-42b1-8c9f-9f9871118c7e","full_name":"Rohit","email":"test-user-1@gmail.com","contact":"7720830170","user_type":"ADMIN","access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNmEwZGFhYjItZDY1MS00MmIxLThjOWYtOWY5ODcxMTE4YzdlIiwidXNlcl90eXBlIjoiQURNSU4iLCJjcmVhdGVkX2F0IjoiMjAyMy0xMC0xMlQyMjo1NToxMi4yNTcyNDQzMzMrMDU6MzAiLCJleHAiOjMwMDAwMDAwMDAwMCwiaWF0IjoxNjk3MTMwOTEyLCJpc3MiOiJ5ZGhud2IifQ.OGrINxz9SoxXB4xOg13pvG17iGKR8JAatFEEfKr7TNw","created_at":"2023-10-12T05:07:51.230679Z","updated_at":"2023-10-12T07:03:03.51086Z"}}
+DEBUG : 2023/10/12 22:45:12 Error :  <nil> false
+DEBUG : 2023/10/12 22:45:12 
+DEBUG : 2023/10/12 22:45:12 Request BODY :  &{GET http://localhost:8080/api/login-user?email=&password=user123 HTTP/1.1 1 1 map[] <nil> <nil> 0 [] false localhost:8080 map[] map[] <nil> map[]   <nil> <nil> <nil> 0xc000016090}
+DEBUG : 2023/10/12 22:45:12 Response Code :  400
+DEBUG : 2023/10/12 22:45:12 Response BODY :  {"error":"Key: 'LoginUserRequestDTO.Email' Error:Field validation for 'Email' failed on the 'required' tag","message":"failed to process the request.","status":false,"user_data":{}}
+DEBUG : 2023/10/12 22:45:12 Error :  <nil> true
+DEBUG : 2023/10/12 22:45:12 
+DEBUG : 2023/10/12 22:45:12 Request BODY :  &{GET http://localhost:8080/api/login-user?email=ajwwhthctcua%40gmail.com&password= HTTP/1.1 1 1 map[] <nil> <nil> 0 [] false localhost:8080 map[] map[] <nil> map[]   <nil> <nil> <nil> 0xc000016090}
+DEBUG : 2023/10/12 22:45:12 Response Code :  400
+DEBUG : 2023/10/12 22:45:12 Response BODY :  {"error":"Key: 'LoginUserRequestDTO.Password' Error:Field validation for 'Password' failed on the 'required' tag","message":"failed to process the request.","status":false,"user_data":{}}
+DEBUG : 2023/10/12 22:45:12 Error :  <nil> true
+DEBUG : 2023/10/12 22:45:12 
+DEBUG : 2023/10/12 22:45:13 Request BODY :  &{GET http://localhost:8080/api/login-user?email=test-user-1%40gmail.com&password=2user123 HTTP/1.1 1 1 map[] <nil> <nil> 0 [] false localhost:8080 map[] map[] <nil> map[]   <nil> <nil> <nil> 0xc000016090}
+DEBUG : 2023/10/12 22:45:13 Response Code :  401
+DEBUG : 2023/10/12 22:45:13 Response BODY :  {"error":"password does not matched","message":"failed to process the request.","status":false,"user_data":{}}
+DEBUG : 2023/10/12 22:45:13 Error :  <nil> true
+DEBUG : 2023/10/12 22:45:13 

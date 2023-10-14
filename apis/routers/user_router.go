@@ -29,4 +29,9 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 		user.GET("/fetch-users/:page_id/:page_size", user_cont.FetchAllUsers)
 		user.DELETE("/delete-user/:user_id", user_cont.DeleteUser)
 	}
+
+	token_val := router.Group("/api", middleware.AuthorizeJWT(jwt_service))
+	{
+		token_val.GET("/validate-token", user_cont.FetchUserById)
+	}
 }

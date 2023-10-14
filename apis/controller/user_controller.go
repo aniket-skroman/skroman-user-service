@@ -9,6 +9,7 @@ import (
 	"github.com/aniket-skroman/skroman-user-service/apis/services"
 	"github.com/aniket-skroman/skroman-user-service/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UserController interface {
@@ -17,6 +18,7 @@ type UserController interface {
 	UpdateUser(*gin.Context)
 	FetchAllUsers(*gin.Context)
 	DeleteUser(*gin.Context)
+	FetchUserById(*gin.Context)
 }
 
 type user_controller struct {
@@ -166,5 +168,40 @@ func (cont *user_controller) DeleteUser(ctx *gin.Context) {
 	}
 
 	response := utils.BuildSuccessResponse(utils.DELETE_SUCCESS, utils.USER_DATA, utils.EmptyObj{})
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (cont *user_controller) FetchUserById(ctx *gin.Context) {
+	//token := ctx.Request.Header.Get("Authorization")
+
+	if utils.TOKEN_ID == "" {
+		response := utils.BuildFailedResponse("faild to extract token info")
+		ctx.JSON(http.StatusUnauthorized, response)
+		return
+	}
+
+	user_id, err := uuid.Parse(utils.TOKEN_ID)
+
+	if err != nil {
+		response := utils.BuildFailedResponse(err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	user, err := cont.user_ser.FetchUserById(user_id)
+
+	if err != nil {
+		response := utils.BuildFailedResponse(err.Error())
+
+		if strings.Contains(err.Error(), "not found") {
+			ctx.JSON(http.StatusNotFound, response)
+			return
+		}
+
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := utils.BuildSuccessResponse(utils.FETCHED_SUCCESS, utils.USER_DATA, user)
 	ctx.JSON(http.StatusOK, response)
 }

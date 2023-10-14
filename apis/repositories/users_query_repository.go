@@ -60,3 +60,10 @@ func (repo *user_repository) CountUsers() (int64, error) {
 
 	return repo.db.Queries.CountUsers(ctx)
 }
+
+func (repo *user_repository) FetchUserById(user_id uuid.UUID) (db.Users, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.GetUserById(ctx, user_id)
+}

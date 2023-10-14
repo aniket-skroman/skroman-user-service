@@ -20,6 +20,7 @@ type UserRepository interface {
 	FetchAllUsers(db.FetchAllUsersParams) ([]db.Users, error)
 	DeleteUser(uuid.UUID) (int64, error)
 	CountUsers() (int64, error)
+	FetchUserById(uuid.UUID) (db.Users, error)
 }
 
 type user_repository struct {

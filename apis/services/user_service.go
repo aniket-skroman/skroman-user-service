@@ -21,6 +21,7 @@ type UserService interface {
 	FetchAllUsers(dtos.GetUsersRequestParams) ([]dtos.UserDTO, error)
 	DeleteUser(dtos.DeleteUserRequestDTO) error
 	GetUSersCount() int32
+	FetchUserById(uuid.UUID) (dtos.UserDTO, error)
 }
 
 type user_service struct {
@@ -237,5 +238,20 @@ func (ser *user_service) GetUSersCount() int32 {
 		return 0
 	}
 	return int32(count)
+}
 
+func (ser *user_service) FetchUserById(user_id uuid.UUID) (dtos.UserDTO, error) {
+	result, err := ser.user_repo.FetchUserById(user_id)
+
+	if err != nil {
+		return dtos.UserDTO{}, err
+	}
+
+	user := new(dtos.UserDTO).MakeUserDTO("", result)
+
+	if reflect.DeepEqual(user.(dtos.UserDTO), dtos.UserDTO{}) {
+		return dtos.UserDTO{}, errors.New("user not found")
+	}
+
+	return user.(dtos.UserDTO), nil
 }

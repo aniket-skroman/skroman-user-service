@@ -107,3 +107,14 @@ func TestUserCount(t *testing.T) {
 	require.NoError(t, err)
 	require.NotZero(t, count)
 }
+
+func TestGetUserById(t *testing.T) {
+	user_id, err := uuid.Parse("2c87109d-52c3-4b2f-b22e-98d61fec12b3")
+	require.NoError(t, err)
+
+	user, err := testQueries.GetUserById(context.Background(), user_id)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, user)
+
+}
