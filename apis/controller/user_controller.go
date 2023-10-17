@@ -172,8 +172,6 @@ func (cont *user_controller) DeleteUser(ctx *gin.Context) {
 }
 
 func (cont *user_controller) FetchUserById(ctx *gin.Context) {
-	//token := ctx.Request.Header.Get("Authorization")
-
 	if utils.TOKEN_ID == "" {
 		response := utils.BuildFailedResponse("faild to extract token info")
 		ctx.JSON(http.StatusUnauthorized, response)
