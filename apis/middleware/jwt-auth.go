@@ -29,7 +29,7 @@ func AuthorizeJWT(jwtService services.JWTService) gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 				return
 			}
-			response := utils.BuildFailedResponse("Invalid token provided !" + " With error : " + err.Error())
+			response := utils.BuildFailedResponse("Invalid token provided !")
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 			return
 		}
