@@ -118,3 +118,12 @@ func TestGetUserById(t *testing.T) {
 	require.NotEmpty(t, user)
 
 }
+
+func TestCountEmployee(t *testing.T) {
+	count, err := testQueries.CountEmployee(context.Background())
+
+	require.NoError(t, err)
+	fmt.Println("Count : ", count)
+
+	require.NotZero(t, count)
+}

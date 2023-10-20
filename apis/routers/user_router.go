@@ -31,6 +31,11 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 		user.GET("/fetch-user", user_cont.FetchUserById)
 	}
 
+	user_proxy := router.Group("/api", middleware.AuthorizeJWT(jwt_service))
+	{
+		user_proxy.GET("/emp-count", user_cont.CountEmployee)
+	}
+
 	token_val := router.Group("/api", middleware.AuthorizeJWT(jwt_service))
 	{
 		token_val.GET("/validate-token", user_cont.FetchUserById)

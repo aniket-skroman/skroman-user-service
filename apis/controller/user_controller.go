@@ -20,6 +20,7 @@ type UserController interface {
 	FetchAllUsers(*gin.Context)
 	DeleteUser(*gin.Context)
 	FetchUserById(*gin.Context)
+	CountEmployee(ctx *gin.Context)
 }
 
 type user_controller struct {
@@ -128,7 +129,7 @@ func (cont *user_controller) FetchAllUsers(ctx *gin.Context) {
 
 	go func() {
 		defer wg.Done()
-		count := cont.user_ser.GetUSersCount()
+		count := cont.user_ser.GetUsersCount()
 		utils.SetPaginationData(int(req.PageID), int64(count))
 	}()
 
@@ -202,5 +203,11 @@ func (cont *user_controller) FetchUserById(ctx *gin.Context) {
 	}
 
 	response := utils.BuildSuccessResponse(utils.FETCHED_SUCCESS, utils.USER_DATA, user)
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (cont *user_controller) CountEmployee(ctx *gin.Context) {
+	count := cont.user_ser.GetUsersCount()
+	response := utils.BuildSuccessResponse(utils.FETCHED_SUCCESS, "data_count", count)
 	ctx.JSON(http.StatusOK, response)
 }

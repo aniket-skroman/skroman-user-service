@@ -20,7 +20,7 @@ type UserService interface {
 	UpdateUser(dtos.UpdateUserRequestDTO) (dtos.UserDTO, error)
 	FetchAllUsers(dtos.GetUsersRequestParams) ([]dtos.UserDTO, error)
 	DeleteUser(dtos.DeleteUserRequestDTO) error
-	GetUSersCount() int32
+	GetUsersCount() int32
 	FetchUserById(uuid.UUID) (dtos.UserDTO, error)
 }
 
@@ -231,7 +231,7 @@ func (ser *user_service) DeleteUser(req dtos.DeleteUserRequestDTO) error {
 	return nil
 }
 
-func (ser *user_service) GetUSersCount() int32 {
+func (ser *user_service) GetUsersCount() int32 {
 	count, err := ser.user_repo.CountUsers()
 
 	if err != nil {
