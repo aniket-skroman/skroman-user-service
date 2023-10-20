@@ -12,7 +12,7 @@ type CreateUserRequestDTO struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 	Contact  string `json:"contact" binding:"required,min=10"`
-	UserType string `json:"user_type" binding:"required"`
+	UserType string `json:"user_type" binding:"required,oneof=EMP ADMIN"`
 }
 
 type UpdateUserRequestDTO struct {

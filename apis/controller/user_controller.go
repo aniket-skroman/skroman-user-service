@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/aniket-skroman/skroman-user-service/apis/dtos"
+	"github.com/aniket-skroman/skroman-user-service/apis/helper"
 	"github.com/aniket-skroman/skroman-user-service/apis/services"
 	"github.com/aniket-skroman/skroman-user-service/utils"
 	"github.com/gin-gonic/gin"
@@ -35,7 +36,7 @@ func (cont *user_controller) CreateNewUser(ctx *gin.Context) {
 	var req dtos.CreateUserRequestDTO
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response := utils.BuildFailedResponse(err.Error())
+		response := utils.RequestParamsMissingResponse(helper.Error_handler(err))
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
