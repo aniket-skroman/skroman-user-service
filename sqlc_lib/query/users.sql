@@ -4,9 +4,10 @@ insert into users (
     email,
     password,
     contact,
-    user_type
+    user_type,
+    department
 ) values (
-    $1,$2,$3,$4,$5
+    $1,$2,$3,$4,$5,$6
 ) returning *;
 
 

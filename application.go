@@ -57,7 +57,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	router := gin.New()
+	router := gin.Default()
 	router.Use(cors.New(CORSConfig()))
 	router.Static("static", "static")
 

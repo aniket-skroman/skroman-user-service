@@ -37,7 +37,7 @@ func (cont *user_controller) CreateNewUser(ctx *gin.Context) {
 	var req dtos.CreateUserRequestDTO
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response := utils.RequestParamsMissingResponse(helper.Error_handler(err))
+		response := utils.RequestParamsMissingResponse(helper.Single_Error_handler(err))
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}

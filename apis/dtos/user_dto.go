@@ -8,11 +8,12 @@ import (
 )
 
 type CreateUserRequestDTO struct {
-	FullName string `json:"full_name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
-	Contact  string `json:"contact" binding:"required,min=10"`
-	UserType string `json:"user_type" binding:"required,oneof=EMP ADMIN"`
+	FullName   string `json:"full_name" binding:"required"`
+	Email      string `json:"email" binding:"required,email"`
+	Password   string `json:"password" binding:"required"`
+	Contact    string `json:"contact" binding:"required,min=10"`
+	Department string `json:"department" binding:"required,oneof=SALES INSTALLATION ACCOUNT INVENTORY PRODUCTION"`
+	UserType   string `json:"user_type" binding:"required,oneof=EMP ADMIN SUPER-ADMIN"`
 }
 
 type UpdateUserRequestDTO struct {
@@ -42,6 +43,7 @@ type UserDTO struct {
 	Email       string     `json:"email,omitempty"`
 	Contact     string     `json:"contact"`
 	UserType    string     `json:"user_type"`
+	Department  string     `json:"department"`
 	AccessToken string     `json:"access_token,omitempty"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
@@ -56,6 +58,7 @@ func (user *UserDTO) MakeUserDTO(access_token string, module_data ...db.Users) i
 			Contact:     module_data[0].Contact,
 			UserType:    module_data[0].UserType,
 			AccessToken: access_token,
+			Department:  module_data[0].Department,
 			CreatedAt:   &module_data[0].CreatedAt,
 			UpdatedAt:   &module_data[0].UpdatedAt,
 		}
@@ -67,13 +70,14 @@ func (user *UserDTO) MakeUserDTO(access_token string, module_data ...db.Users) i
 
 	for i := range module_data {
 		users[i] = UserDTO{
-			ID:        module_data[i].ID,
-			FullName:  module_data[i].FullName,
-			Email:     module_data[i].Email,
-			Contact:   module_data[i].Contact,
-			UserType:  module_data[i].UserType,
-			CreatedAt: &module_data[i].CreatedAt,
-			UpdatedAt: &module_data[i].UpdatedAt,
+			ID:         module_data[i].ID,
+			FullName:   module_data[i].FullName,
+			Email:      module_data[i].Email,
+			Contact:    module_data[i].Contact,
+			UserType:   module_data[i].UserType,
+			Department: module_data[i].Department,
+			CreatedAt:  &module_data[i].CreatedAt,
+			UpdatedAt:  &module_data[i].UpdatedAt,
 		}
 	}
 

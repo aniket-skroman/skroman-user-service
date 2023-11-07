@@ -60,11 +60,12 @@ func (ser *user_service) CreateNewUser(req dtos.CreateUserRequestDTO) (dtos.User
 	hash_password := utils.Hash_password(req.Password)
 
 	args := db.CreateNewUserParams{
-		FullName: req.FullName,
-		Email:    req.Email,
-		Password: hash_password,
-		Contact:  req.Contact,
-		UserType: req.UserType,
+		FullName:   req.FullName,
+		Email:      req.Email,
+		Password:   hash_password,
+		Contact:    req.Contact,
+		UserType:   req.UserType,
+		Department: req.Department,
 	}
 
 	user, err := ser.user_repo.CreateNewUser(args)
@@ -97,17 +98,8 @@ func (ser *user_service) FetchUserByEmail(req dtos.LoginUserRequestDTO) (dtos.Us
 	}
 
 	token := ser.jwt_service.GenerateToken(user.ID.String(), user.UserType)
-
-	return dtos.UserDTO{
-		ID:          user.ID,
-		FullName:    user.FullName,
-		Email:       user.Email,
-		Contact:     user.Contact,
-		UserType:    user.UserType,
-		AccessToken: token,
-		CreatedAt:   &user.CreatedAt,
-		UpdatedAt:   &user.UpdatedAt,
-	}, nil
+	n_user := new(dtos.UserDTO).MakeUserDTO(token, user)
+	return n_user.(dtos.UserDTO), nil
 }
 
 func (ser *user_service) UpdateUser(req dtos.UpdateUserRequestDTO) (dtos.UserDTO, error) {

@@ -25,6 +25,21 @@ func Error_handler(err error) []ApiError {
 	}
 	return nil
 }
+
+func Single_Error_handler(err error) ApiError {
+	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			for _, fe := range ve {
+				return ApiError{fe.Field(), msgForTag(fe.Tag())}
+			}
+
+		}
+		return ApiError{}
+	}
+	return ApiError{}
+}
+
 func msgForTag(tag string) string {
 	switch tag {
 	case "required":
