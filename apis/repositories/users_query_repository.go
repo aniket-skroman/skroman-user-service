@@ -67,3 +67,19 @@ func (repo *user_repository) FetchUserById(user_id uuid.UUID) (db.Users, error) 
 
 	return repo.db.Queries.GetUserById(ctx, user_id)
 }
+
+// users by department
+func (repo *user_repository) FetchUsersByDepartment(args db.UsersByDepartmentParams) ([]db.Users, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.UsersByDepartment(ctx, args)
+}
+
+// count users by department
+func (repo *user_repository) CountUserByDepartment(dept_name string) (int64, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.CountUsersByDepartment(ctx, dept_name)
+}

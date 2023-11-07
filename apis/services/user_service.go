@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/aniket-skroman/skroman-user-service/apis/dtos"
 	"github.com/aniket-skroman/skroman-user-service/apis/helper"
@@ -22,6 +23,7 @@ type UserService interface {
 	DeleteUser(dtos.DeleteUserRequestDTO) error
 	GetUsersCount() int32
 	FetchUserById(uuid.UUID) (dtos.UserDTO, error)
+	GetUsersByDepartmentCount(dep_name string) (int64, error)
 }
 
 type user_service struct {
@@ -164,12 +166,28 @@ func (ser *user_service) check_duplicate_contact(contact string, user_id uuid.UU
 }
 
 func (ser *user_service) FetchAllUsers(req dtos.GetUsersRequestParams) ([]dtos.UserDTO, error) {
-	args := db.FetchAllUsersParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
-	}
+	// fetch count
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	var result []db.Users
+	var err error
 
-	result, err := ser.user_repo.FetchAllUsers(args)
+	go func(dept_name string) {
+		defer wg.Done()
+		count, _ := ser.GetUsersByDepartmentCount(dept_name)
+		utils.SetPaginationData(int(req.PageID), int64(count))
+	}(req.Department)
+
+	go func() {
+		defer wg.Done()
+		args := db.UsersByDepartmentParams{
+			Limit:      req.PageSize,
+			Offset:     (req.PageID - 1) * req.PageSize,
+			Department: req.Department,
+		}
+		result, err = ser.user_repo.FetchUsersByDepartment(args)
+	}()
+	wg.Wait()
 	err = helper.Handle_DBError(err)
 
 	if err != nil {
@@ -186,8 +204,6 @@ func (ser *user_service) FetchAllUsers(req dtos.GetUsersRequestParams) ([]dtos.U
 		return users.([]dtos.UserDTO), nil
 	}
 	s_user := users.(dtos.UserDTO)
-
-	//wg.Wait()
 
 	return []dtos.UserDTO{
 		{
@@ -230,6 +246,10 @@ func (ser *user_service) GetUsersCount() int32 {
 		return 0
 	}
 	return int32(count)
+}
+
+func (ser *user_service) GetUsersByDepartmentCount(dep_name string) (int64, error) {
+	return ser.user_repo.CountUserByDepartment(dep_name)
 }
 
 func (ser *user_service) FetchUserById(user_id uuid.UUID) (dtos.UserDTO, error) {

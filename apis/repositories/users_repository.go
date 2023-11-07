@@ -21,6 +21,8 @@ type UserRepository interface {
 	DeleteUser(uuid.UUID) (int64, error)
 	CountUsers() (int64, error)
 	FetchUserById(uuid.UUID) (db.Users, error)
+	FetchUsersByDepartment(args db.UsersByDepartmentParams) ([]db.Users, error)
+	CountUserByDepartment(dept_name string) (int64, error)
 }
 
 type user_repository struct {

@@ -3,10 +3,8 @@ package controller
 import (
 	"net/http"
 	"strings"
-	"sync"
 
 	"github.com/aniket-skroman/skroman-user-service/apis/dtos"
-	"github.com/aniket-skroman/skroman-user-service/apis/helper"
 	"github.com/aniket-skroman/skroman-user-service/apis/services"
 	"github.com/aniket-skroman/skroman-user-service/utils"
 	"github.com/gin-gonic/gin"
@@ -37,7 +35,7 @@ func (cont *user_controller) CreateNewUser(ctx *gin.Context) {
 	var req dtos.CreateUserRequestDTO
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response := utils.RequestParamsMissingResponse(helper.Single_Error_handler(err))
+		response := utils.RequestParamsMissingResponse("provide a required params")
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -124,15 +122,6 @@ func (cont *user_controller) FetchAllUsers(ctx *gin.Context) {
 		return
 	}
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
-		count := cont.user_ser.GetUsersCount()
-		utils.SetPaginationData(int(req.PageID), int64(count))
-	}()
-
 	users, err := cont.user_ser.FetchAllUsers(req)
 
 	if err != nil {
@@ -145,8 +134,6 @@ func (cont *user_controller) FetchAllUsers(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
-
-	wg.Wait()
 
 	response := utils.BuildResponseWithPagination(utils.FETCHED_SUCCESS, "", utils.USER_DATA, users)
 	ctx.JSON(http.StatusOK, response)

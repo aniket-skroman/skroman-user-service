@@ -127,3 +127,16 @@ func TestCountEmployee(t *testing.T) {
 
 	// require.NotZero(t, count)
 }
+
+func TestUsersByDepartment(t *testing.T) {
+	args := db.UsersByDepartmentParams{
+		Limit:      20,
+		Offset:     1,
+		Department: "skroman",
+	}
+
+	users, err := testQueries.UsersByDepartment(context.Background(), args)
+	require.NoError(t, err)
+	require.NotEmpty(t, users)
+
+}

@@ -29,8 +29,9 @@ type LoginUserRequestDTO struct {
 }
 
 type GetUsersRequestParams struct {
-	PageID   int32 `uri:"page_id"`
-	PageSize int32 `uri:"page_size"`
+	PageID     int32  `uri:"page_id"`
+	PageSize   int32  `uri:"page_size"`
+	Department string `uri:"department"`
 }
 
 type DeleteUserRequestDTO struct {

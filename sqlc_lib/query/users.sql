@@ -53,3 +53,18 @@ where id = $1;
 select * from users
 where id = $1
 limit 1;
+
+
+/* fetch users by department */
+-- name: UsersByDepartment :many
+select * from users 
+where department = $1
+group by id
+order by created_at desc 
+limit $2
+offset $3;
+
+/* count users by department */
+-- name: CountUsersByDepartment :one
+select count(*) from users 
+where department = $1;

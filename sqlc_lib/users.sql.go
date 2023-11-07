@@ -70,6 +70,19 @@ func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countUsersByDepartment = `-- name: CountUsersByDepartment :one
+select count(*) from users 
+where department = $1
+`
+
+// count users by department
+func (q *Queries) CountUsersByDepartment(ctx context.Context, department string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countUsersByDepartment, department)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createNewUser = `-- name: CreateNewUser :one
 insert into users (
     full_name,
@@ -244,4 +257,53 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (sql.Res
 		arg.Contact,
 		arg.UserType,
 	)
+}
+
+const usersByDepartment = `-- name: UsersByDepartment :many
+select id, full_name, email, password, contact, user_type, created_at, updated_at, department from users 
+where department = $1
+group by id
+order by created_at desc 
+limit $2
+offset $3
+`
+
+type UsersByDepartmentParams struct {
+	Department string `json:"department"`
+	Limit      int32  `json:"limit"`
+	Offset     int32  `json:"offset"`
+}
+
+// fetch users by department
+func (q *Queries) UsersByDepartment(ctx context.Context, arg UsersByDepartmentParams) ([]Users, error) {
+	rows, err := q.db.QueryContext(ctx, usersByDepartment, arg.Department, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Users{}
+	for rows.Next() {
+		var i Users
+		if err := rows.Scan(
+			&i.ID,
+			&i.FullName,
+			&i.Email,
+			&i.Password,
+			&i.Contact,
+			&i.UserType,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Department,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
