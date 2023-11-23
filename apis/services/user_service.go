@@ -89,18 +89,41 @@ func (ser *user_service) CreateNewUser(req dtos.CreateUserRequestDTO) (dtos.User
 }
 
 func (ser *user_service) FetchUserByEmail(req dtos.LoginUserRequestDTO) (dtos.UserDTO, error) {
+	err_chan := make(chan error)
+	wg := sync.WaitGroup{}
+	var n_user interface{}
 	user, err := ser.user_repo.FetchUserByMultipleTag(req.Email)
 
-	if err != nil {
-		return dtos.UserDTO{}, err
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		if !utils.Compare_password(user.Password, []byte(req.Password)) {
+			err_chan <- errors.New("password does not matched")
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		user_id, _ := helper.EncryptData(user.ID.String())
+		user_type, _ := helper.EncryptData(user.UserType)
+		dept, _ := helper.EncryptData(user.Department)
+		token := ser.jwt_service.GenerateToken(user_id, user_type, dept)
+		n_user = new(dtos.UserDTO).MakeUserDTO(token, user)
+	}()
+
+	go func() {
+		err_chan <- err
+		wg.Wait()
+		close(err_chan)
+	}()
+
+	for p_err := range err_chan {
+		if p_err != nil {
+			return dtos.UserDTO{}, p_err
+		}
 	}
 
-	if !utils.Compare_password(user.Password, []byte(req.Password)) {
-		return dtos.UserDTO{}, errors.New("password does not matched")
-	}
-
-	token := ser.jwt_service.GenerateToken(user.ID.String(), user.UserType)
-	n_user := new(dtos.UserDTO).MakeUserDTO(token, user)
 	return n_user.(dtos.UserDTO), nil
 }
 
