@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aniket-skroman/skroman-user-service/apis/helper"
 	"github.com/aniket-skroman/skroman-user-service/apis/services"
 	"github.com/aniket-skroman/skroman-user-service/utils"
 	"github.com/dgrijalva/jwt-go"
@@ -13,6 +14,7 @@ import (
 
 func AuthorizeJWT(jwtService services.JWTService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		fmt.Println("JWT Service get called..")
 		authHeader := ctx.GetHeader("Authorization")
 
 		if authHeader == "" {
@@ -38,6 +40,8 @@ func AuthorizeJWT(jwtService services.JWTService) gin.HandlerFunc {
 			claims := token.Claims.(jwt.MapClaims)
 			utils.TOKEN_ID = fmt.Sprintf("%v", claims["user_id"])
 			//userType := fmt.Sprintf("%v", claims["user_type"])
+			utils.TOKEN_ID, _ = helper.DecryptData(utils.TOKEN_ID)
+			fmt.Println("User ID : ", utils.TOKEN_ID)
 
 		}
 

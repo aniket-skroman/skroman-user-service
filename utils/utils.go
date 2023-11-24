@@ -36,15 +36,12 @@ func Hash_password(password string) string {
 
 func Compare_password(hashedPwd string, plainPassword []byte) bool {
 	byteHash := []byte(hashedPwd)
-	s := time.Now()
 	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
 
 	if err != nil {
 		log.Println(err)
 		return false
 	}
-	et := time.Since(s)
-	fmt.Println("time taken for comapre password : ", et.Milliseconds())
 	return true
 
 }

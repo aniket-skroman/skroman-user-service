@@ -1,8 +1,6 @@
 package services
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 
@@ -46,14 +44,14 @@ func getSecretKey() string {
 }
 
 func (j *jwtService) GenerateToken(UserID, userType, dept string) string {
-	s := time.Now()
+
 	claims := &jwtCustomClaim{
 		UserID,
 		userType,
 		dept,
 		time.Now().Add(10 * time.Minute),
 		jwt.StandardClaims{
-			ExpiresAt: int64(5 * time.Minute),
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 			Issuer:    j.issuer,
 			IssuedAt:  time.Now().Unix(),
 		},
@@ -64,8 +62,7 @@ func (j *jwtService) GenerateToken(UserID, userType, dept string) string {
 	if err != nil {
 		panic(err)
 	}
-	et := time.Since(s)
-	fmt.Println("time taken for generate token : ", et.Milliseconds())
+
 	return t
 }
 
@@ -74,21 +71,6 @@ func (j *jwtService) ValidateToken(token string) (*jwt.Token, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method %v", t.Header["alg"])
 		}
-		if t.Valid {
-			fmt.Println("token valid ", t)
-		}
-		byteArr, _ := json.Marshal(t.Claims)
-
-		tokenData := new(jwtCustomClaim)
-
-		json.Unmarshal(byteArr, &tokenData)
-
-		d := time.Since(tokenData.CreatedAt)
-
-		if d.Hours() > 24 {
-			return nil, errors.New("token has been expired")
-		}
-
 		return []byte(j.secretKey), nil
 	})
 }
