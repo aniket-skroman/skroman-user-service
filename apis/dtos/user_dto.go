@@ -89,25 +89,25 @@ func (user *UserDTO) MakeUserDTO(access_token string, module_data ...db.Users) i
 
 type CreateSkromanClientRequestDTO struct {
 	UserName string `json:"user_name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 	Contact  string `json:"contact" binding:"required"`
 	Address  string `json:"address" binding:"required"`
-	City     string `json:"city" binding:"required"`
-	State    string `json:"state" binding:"required"`
-	Pincode  string `json:"pincode" binding:"required"`
+	City     string `json:"city" `
+	State    string `json:"state" `
+	Pincode  string `json:"pincode" `
 }
 
 type SkromanClientDTO struct {
 	ID        uuid.UUID `json:"id"`
-	UserName  string    `json:"user_name" binding:"required"`
+	UserName  string    `json:"user_name" `
 	Email     string    `json:"email" binding:"required,email"`
 	Password  string    `json:"password,omitempty"`
-	Contact   string    `json:"contact" binding:"required"`
-	Address   string    `json:"address" binding:"required"`
-	City      string    `json:"city" binding:"required"`
-	State     string    `json:"state" binding:"required"`
-	Pincode   string    `json:"pincode" binding:"required"`
+	Contact   string    `json:"contact" `
+	Address   string    `json:"address" `
+	City      string    `json:"city" `
+	State     string    `json:"state" `
+	Pincode   string    `json:"pincode" `
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
