@@ -6,10 +6,41 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io"
+	"regexp"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
+
+type InputValidator interface {
+	Validate() (interface{}, error)
+}
+
+type ContactValidate struct {
+	Contact string
+}
+
+func (cv *ContactValidate) Validate() (interface{}, error) {
+	regex := `^[0-9]{10}$`
+	match, err := regexp.MatchString(regex, cv.Contact)
+	return match, err
+}
+
+func valide_actual_input(input_data InputValidator) (interface{}, error) {
+	return input_data.Validate()
+}
+
+func ValidateInput(input_data interface{}) (interface{}, error) {
+	if data, ok := input_data.(string); ok {
+		contact_val := ContactValidate{Contact: data}
+		var validate InputValidator = &contact_val
+		return valide_actual_input(validate)
+	}
+
+	return false, Err_Invalid_Input
+}
 
 type ApiError struct {
 	Field string
@@ -43,6 +74,29 @@ func Single_Error_handler(err error) ApiError {
 		return ApiError{}
 	}
 	return ApiError{}
+}
+
+func Handle_required_param_error(err error) string {
+	var ve validator.ValidationErrors
+	var err_msg string
+	if errors.As(err, &ve) {
+		for _, fe := range ve {
+			err_msg = fmt.Sprintf("%v - %v", fe.Field(), msgForTag(fe.Tag()))
+			break
+		}
+	} else {
+		fmt.Println("Error MSG : ", err)
+		if strings.Contains(err.Error(), "cannot unmarshal string into") {
+			err_msg = "required a integer but found string, please check params"
+		} else if strings.Contains(err.Error(), "cannot unmarshal number into") {
+			err_msg = "required a string but found integer, please check params"
+		} else {
+			err_msg = "something went's wrong, invalid param detecte"
+
+		}
+	}
+
+	return err_msg
 }
 
 func msgForTag(tag string) string {

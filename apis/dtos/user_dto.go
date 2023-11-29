@@ -29,9 +29,9 @@ type LoginUserRequestDTO struct {
 }
 
 type GetUsersRequestParams struct {
-	PageID     int32  `uri:"page_id"`
-	PageSize   int32  `uri:"page_size"`
-	Department string `uri:"department"`
+	PageID     int32  `uri:"page_id" binding:"required"`
+	PageSize   int32  `uri:"page_size" binding:"required"`
+	Department string `uri:"department" binding:"omitempty,oneof=SALES INSTALLATION ACCOUNT INVENTORY PRODUCTION"`
 }
 
 type DeleteUserRequestDTO struct {
@@ -83,4 +83,31 @@ func (user *UserDTO) MakeUserDTO(access_token string, module_data ...db.Users) i
 	}
 
 	return users
+}
+
+//----------------------------------- 	HANDLE SKROMAN CLIENT OPERATIONS ------------------------------------------- //
+
+type CreateSkromanClientRequestDTO struct {
+	UserName string `json:"user_name" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password"`
+	Contact  string `json:"contact" binding:"required"`
+	Address  string `json:"address" binding:"required"`
+	City     string `json:"city" binding:"required"`
+	State    string `json:"state" binding:"required"`
+	Pincode  string `json:"pincode" binding:"required"`
+}
+
+type SkromanClientDTO struct {
+	ID        uuid.UUID `json:"id"`
+	UserName  string    `json:"user_name" binding:"required"`
+	Email     string    `json:"email" binding:"required,email"`
+	Password  string    `json:"password,omitempty"`
+	Contact   string    `json:"contact" binding:"required"`
+	Address   string    `json:"address" binding:"required"`
+	City      string    `json:"city" binding:"required"`
+	State     string    `json:"state" binding:"required"`
+	Pincode   string    `json:"pincode" binding:"required"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

@@ -14,7 +14,7 @@ import (
 
 func AuthorizeJWT(jwtService services.JWTService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		fmt.Println("JWT Service get called..")
+
 		authHeader := ctx.GetHeader("Authorization")
 
 		if authHeader == "" {
@@ -41,7 +41,6 @@ func AuthorizeJWT(jwtService services.JWTService) gin.HandlerFunc {
 			utils.TOKEN_ID = fmt.Sprintf("%v", claims["user_id"])
 			//userType := fmt.Sprintf("%v", claims["user_type"])
 			utils.TOKEN_ID, _ = helper.DecryptData(utils.TOKEN_ID)
-			fmt.Println("User ID : ", utils.TOKEN_ID)
 
 		}
 

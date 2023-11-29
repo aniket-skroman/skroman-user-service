@@ -40,4 +40,12 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 	{
 		token_val.GET("/validate-token", user_cont.FetchUserById)
 	}
+
+	skroman_client := router.Group("/api", middleware.AuthorizeJWT(jwt_service))
+	{
+		skroman_client.POST("/clients", user_cont.CreateSkromanClient)
+		skroman_client.GET("/clients/:page_id/:page_size", user_cont.FetchAllClients)
+		skroman_client.DELETE("/clients/:client_id", user_cont.DeleteClient)
+
+	}
 }

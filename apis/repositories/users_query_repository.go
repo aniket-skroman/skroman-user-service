@@ -83,3 +83,33 @@ func (repo *user_repository) CountUserByDepartment(dept_name string) (int64, err
 
 	return repo.db.Queries.CountUsersByDepartment(ctx, dept_name)
 }
+
+//----------------------------------- 	HANDLE SKROMAN CLIENT OPERATIONS ------------------------------------------- //
+
+func (repo *user_repository) CreateSkromanClient(args db.CreateSkromanUserParams) (db.SkromanClient, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.CreateSkromanUser(ctx, args)
+}
+
+func (repo *user_repository) FetchAllClients(args db.FetchAllClientsParams) ([]db.SkromanClient, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.FetchAllClients(ctx, args)
+}
+
+func (repo *user_repository) CountOfClient() (int64, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.CountOFClients(ctx)
+}
+
+func (repo *user_repository) DeleteClient(client_id uuid.UUID) (sql.Result, error) {
+	ctx, cancle := repo.Init()
+	defer cancle()
+
+	return repo.db.Queries.DeleteClient(ctx, client_id)
+}

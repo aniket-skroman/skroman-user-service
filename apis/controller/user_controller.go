@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"database/sql"
 	"net/http"
 	"strings"
 
 	"github.com/aniket-skroman/skroman-user-service/apis/dtos"
+	"github.com/aniket-skroman/skroman-user-service/apis/helper"
 	"github.com/aniket-skroman/skroman-user-service/apis/services"
 	"github.com/aniket-skroman/skroman-user-service/utils"
 	"github.com/gin-gonic/gin"
@@ -19,15 +21,20 @@ type UserController interface {
 	DeleteUser(*gin.Context)
 	FetchUserById(*gin.Context)
 	CountEmployee(ctx *gin.Context)
+	CreateSkromanClient(ctx *gin.Context)
+	FetchAllClients(ctx *gin.Context)
+	DeleteClient(ctx *gin.Context)
 }
 
 type user_controller struct {
 	user_ser services.UserService
+	response map[string]interface{}
 }
 
 func NewUserController(user_serv services.UserService) UserController {
 	return &user_controller{
 		user_ser: user_serv,
+		response: map[string]interface{}{},
 	}
 }
 
@@ -117,7 +124,7 @@ func (cont *user_controller) FetchAllUsers(ctx *gin.Context) {
 	var req dtos.GetUsersRequestParams
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		response := utils.BuildFailedResponse(err.Error())
+		response := utils.BuildFailedResponse(helper.Handle_required_param_error(err))
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -197,4 +204,87 @@ func (cont *user_controller) CountEmployee(ctx *gin.Context) {
 	count := cont.user_ser.GetUsersCount()
 	response := utils.BuildSuccessResponse(utils.FETCHED_SUCCESS, "data_count", count)
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (cont *user_controller) CreateSkromanClient(ctx *gin.Context) {
+	var req dtos.CreateSkromanClientRequestDTO
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		cont.response = utils.BuildFailedResponse(helper.Handle_required_param_error(err))
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	client, err := cont.user_ser.CreateSkromanClient(req)
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(err.Error())
+		if err == helper.Err_Invalid_Input {
+			ctx.JSON(http.StatusBadRequest, cont.response)
+			return
+		} else if err == helper.Err_Account_Already_Exists {
+			ctx.JSON(http.StatusForbidden, cont.response)
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, cont.response)
+		return
+	}
+
+	cont.response = utils.BuildSuccessResponse(utils.DATA_INSERTED, utils.USER_DATA, client)
+	ctx.JSON(http.StatusCreated, cont.response)
+}
+
+func (cont *user_controller) FetchAllClients(ctx *gin.Context) {
+	var req dtos.GetUsersRequestParams
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		cont.response = utils.BuildFailedResponse(helper.Handle_required_param_error(err))
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	clients, err := cont.user_ser.FetchAllClients(req)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			cont.response = utils.BuildFailedResponse(helper.Err_Data_Not_Found.Error())
+			ctx.JSON(http.StatusNotFound, cont.response)
+			return
+		}
+
+		cont.response = utils.BuildFailedResponse(err.Error())
+		ctx.JSON(http.StatusInternalServerError, cont.response)
+		return
+	}
+
+	cont.response = utils.BuildResponseWithPagination(utils.FETCHED_SUCCESS, "", utils.USER_DATA, clients)
+	ctx.JSON(http.StatusOK, cont.response)
+}
+
+func (cont *user_controller) DeleteClient(ctx *gin.Context) {
+	client_id := ctx.Param("client_id")
+
+	if client_id == "" {
+		cont.response = utils.RequestParamsMissingResponse(helper.ERR_REQUIRED_PARAMS)
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	err := cont.user_ser.DeleteClient(client_id)
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(err.Error())
+		if err == helper.ERR_INVALID_ID {
+			ctx.JSON(http.StatusBadRequest, cont.response)
+			return
+		} else if err == helper.Err_Delete_Failed {
+			ctx.JSON(http.StatusNotFound, cont.response)
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, cont.response)
+		return
+	}
+	cont.response = utils.BuildSuccessResponse(utils.DELETE_SUCCESS, utils.USER_DATA, nil)
+	ctx.JSON(http.StatusOK, cont.response)
 }

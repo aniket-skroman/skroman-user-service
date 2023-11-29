@@ -5,7 +5,7 @@ liveserver:
 	nodemon --exec go run application.go --signal SIGTERM
 
 migratecreate:
-	migrate create -ext sql -dir db/migrations/ -seq alter_user_department
+	migrate create -ext sql -dir db/migrations/ -seq init_skroman_client
 
 migrateup:
 	migrate -path db/migrations -database "postgresql://postgres:support12@localhost:5432/skroman_users?sslmode=disable" --verbose up

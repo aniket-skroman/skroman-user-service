@@ -1,6 +1,7 @@
 package services
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"reflect"
@@ -24,6 +25,10 @@ type UserService interface {
 	GetUsersCount() int32
 	FetchUserById(uuid.UUID) (dtos.UserDTO, error)
 	GetUsersByDepartmentCount(dep_name string) (int64, error)
+
+	CreateSkromanClient(req dtos.CreateSkromanClientRequestDTO) (dtos.SkromanClientDTO, error)
+	FetchAllClients(req dtos.GetUsersRequestParams) ([]dtos.SkromanClientDTO, error)
+	DeleteClient(client_id string) error
 }
 
 type user_service struct {
@@ -289,4 +294,139 @@ func (ser *user_service) FetchUserById(user_id uuid.UUID) (dtos.UserDTO, error) 
 	}
 
 	return user.(dtos.UserDTO), nil
+}
+
+//----------------------------------- 	HANDLE SKROMAN CLIENT OPERATIONS ------------------------------------------- //
+
+func (ser *user_service) CreateSkromanClient(req dtos.CreateSkromanClientRequestDTO) (dtos.SkromanClientDTO, error) {
+	isValid, _ := helper.ValidateInput(req.Contact)
+	if !isValid.(bool) {
+		return dtos.SkromanClientDTO{}, helper.Err_Invalid_Input
+	}
+
+	args := db.CreateSkromanUserParams{
+		UserName: req.UserName,
+		Email:    req.Email,
+		Password: sql.NullString{String: req.Password, Valid: true},
+		Contact:  req.Contact,
+		Address:  req.Address,
+		City:     sql.NullString{String: req.City, Valid: true},
+		State:    sql.NullString{String: req.State, Valid: true},
+		Pincode:  sql.NullString{String: req.Pincode, Valid: true},
+	}
+
+	result, err := ser.user_repo.CreateSkromanClient(args)
+	err = helper.Handle_DBError(err)
+
+	if err != nil {
+		return dtos.SkromanClientDTO{}, err
+	}
+
+	return dtos.SkromanClientDTO{
+		ID:        result.ID,
+		UserName:  result.UserName,
+		Email:     result.Email,
+		Contact:   result.Contact,
+		Address:   result.Address,
+		City:      result.City.String,
+		State:     result.State.String,
+		Pincode:   result.Pincode.String,
+		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
+	}, nil
+}
+
+func (ser *user_service) FetchAllClients(req dtos.GetUsersRequestParams) ([]dtos.SkromanClientDTO, error) {
+	var skroman_clinets []dtos.SkromanClientDTO
+	err_chan := make(chan error)
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	// fetch clients
+	go func() {
+		defer wg.Done()
+		args := db.FetchAllClientsParams{
+			Limit:  req.PageSize,
+			Offset: (req.PageID - 1) * req.PageSize,
+		}
+
+		result, err := ser.user_repo.FetchAllClients(args)
+
+		if err != nil {
+			err_chan <- err
+			return
+		}
+
+		if len(result) == 0 {
+			err_chan <- sql.ErrNoRows
+			return
+		}
+
+		t_wg := sync.WaitGroup{}
+		skroman_clinets = make([]dtos.SkromanClientDTO, len(result))
+
+		for i := range result {
+			t_wg.Add(1)
+			go ser.setSkromanClientData(&t_wg, &skroman_clinets[i], &result[i])
+		}
+		t_wg.Wait()
+	}()
+
+	// count client
+	go func() {
+		defer wg.Done()
+		count, err := ser.user_repo.CountOfClient()
+		if err != nil {
+			err_chan <- err
+		}
+		utils.SetPaginationData(int(req.PageID), count)
+	}()
+
+	go func() {
+		wg.Wait()
+		close(err_chan)
+	}()
+
+	for data_err := range err_chan {
+		return nil, data_err
+	}
+
+	return skroman_clinets, nil
+}
+
+func (ser *user_service) setSkromanClientData(wg *sync.WaitGroup, result *dtos.SkromanClientDTO, data *db.SkromanClient) {
+	defer wg.Done()
+
+	*result = dtos.SkromanClientDTO{
+		ID:        data.ID,
+		UserName:  data.UserName,
+		Email:     data.Email,
+		Contact:   data.Contact,
+		Address:   data.Address,
+		City:      data.City.String,
+		State:     data.State.String,
+		Pincode:   data.Pincode.String,
+		CreatedAt: data.CreatedAt,
+		UpdatedAt: data.UpdatedAt,
+	}
+}
+
+func (ser *user_service) DeleteClient(client_id string) error {
+	client_obj_id, err := uuid.Parse(client_id)
+
+	if err != nil {
+		return helper.ERR_INVALID_ID
+	}
+
+	result, err := ser.user_repo.DeleteClient(client_obj_id)
+
+	if err != nil {
+		return err
+	}
+
+	if a_r, _ := result.RowsAffected(); a_r == 0 {
+		return helper.Err_Delete_Failed
+	}
+
+	return nil
 }

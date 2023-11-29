@@ -23,6 +23,11 @@ type UserRepository interface {
 	FetchUserById(uuid.UUID) (db.Users, error)
 	FetchUsersByDepartment(args db.UsersByDepartmentParams) ([]db.Users, error)
 	CountUserByDepartment(dept_name string) (int64, error)
+
+	CreateSkromanClient(args db.CreateSkromanUserParams) (db.SkromanClient, error)
+	FetchAllClients(args db.FetchAllClientsParams) ([]db.SkromanClient, error)
+	CountOfClient() (int64, error)
+	DeleteClient(client_id uuid.UUID) (sql.Result, error)
 }
 
 type user_repository struct {

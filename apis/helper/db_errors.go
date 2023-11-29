@@ -20,8 +20,8 @@ func Handle_DBError(err error) (err_ error) {
 			return
 		case "23505":
 			// unique constraint violation
-			if strings.Contains(e.Message, "full_name") {
-				err_ = errors.New("user account already exists")
+			if strings.Contains(e.Message, "email") {
+				err_ = Err_Account_Already_Exists
 				return
 			}
 			err_ = errors.New(e.Detail)
