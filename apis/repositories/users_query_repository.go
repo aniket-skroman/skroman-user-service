@@ -113,3 +113,10 @@ func (repo *user_repository) DeleteClient(client_id uuid.UUID) (sql.Result, erro
 
 	return repo.db.Queries.DeleteClient(ctx, client_id)
 }
+
+func (repo *user_repository) FetchClientById(client_id uuid.UUID) (db.SkromanClient, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.FetchClientById(ctx, client_id)
+}

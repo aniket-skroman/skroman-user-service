@@ -24,6 +24,8 @@ type UserController interface {
 	CreateSkromanClient(ctx *gin.Context)
 	FetchAllClients(ctx *gin.Context)
 	DeleteClient(ctx *gin.Context)
+	CountOFClients(ctx *gin.Context)
+	FetchClientById(ctx *gin.Context)
 }
 
 type user_controller struct {
@@ -286,5 +288,47 @@ func (cont *user_controller) DeleteClient(ctx *gin.Context) {
 		return
 	}
 	cont.response = utils.BuildSuccessResponse(utils.DELETE_SUCCESS, utils.USER_DATA, nil)
+	ctx.JSON(http.StatusOK, cont.response)
+}
+
+func (cont *user_controller) CountOFClients(ctx *gin.Context) {
+	result, err := cont.user_ser.CountOFClients()
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(err.Error())
+		ctx.JSON(http.StatusInternalServerError, cont.response)
+		return
+	}
+
+	cont.response = utils.BuildSuccessResponse(utils.FETCHED_SUCCESS, "client_count", result)
+	ctx.JSON(http.StatusOK, cont.response)
+}
+
+func (cont *user_controller) FetchClientById(ctx *gin.Context) {
+	client_id := ctx.Param("client_id")
+
+	if client_id == "" {
+		cont.response = utils.RequestParamsMissingResponse(helper.ERR_REQUIRED_PARAMS)
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	result, err := cont.user_ser.FetchClientById(client_id)
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(err.Error())
+		if err == helper.ERR_INVALID_ID {
+			ctx.JSON(http.StatusBadRequest, cont.response)
+			return
+		} else if err == sql.ErrNoRows {
+			cont.response = utils.BuildFailedResponse(helper.Err_Data_Not_Found.Error())
+			ctx.JSON(http.StatusNotFound, cont.response)
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, cont.response)
+		return
+	}
+
+	cont.response = utils.BuildSuccessResponse(utils.FETCHED_SUCCESS, utils.USER_DATA, result)
 	ctx.JSON(http.StatusOK, cont.response)
 }

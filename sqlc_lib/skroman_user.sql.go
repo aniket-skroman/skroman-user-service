@@ -133,3 +133,28 @@ func (q *Queries) FetchAllClients(ctx context.Context, arg FetchAllClientsParams
 	}
 	return items, nil
 }
+
+const fetchClientById = `-- name: FetchClientById :one
+select id, user_name, email, password, contact, address, city, state, pincode, created_at, updated_at from skroman_client
+where id = $1
+limit 1
+`
+
+func (q *Queries) FetchClientById(ctx context.Context, id uuid.UUID) (SkromanClient, error) {
+	row := q.db.QueryRowContext(ctx, fetchClientById, id)
+	var i SkromanClient
+	err := row.Scan(
+		&i.ID,
+		&i.UserName,
+		&i.Email,
+		&i.Password,
+		&i.Contact,
+		&i.Address,
+		&i.City,
+		&i.State,
+		&i.Pincode,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

@@ -46,6 +46,7 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 		skroman_client.POST("/clients", user_cont.CreateSkromanClient)
 		skroman_client.GET("/clients/:page_id/:page_size", user_cont.FetchAllClients)
 		skroman_client.DELETE("/clients/:client_id", user_cont.DeleteClient)
-
+		skroman_client.GET("/count-clients", user_cont.CountOFClients)
+		skroman_client.GET("/client/:client_id", user_cont.FetchClientById)
 	}
 }

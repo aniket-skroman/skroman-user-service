@@ -26,3 +26,8 @@ select count(*) from skroman_client;
 -- name: DeleteClient :execresult
 delete from skroman_client
 where id = $1;
+
+-- name: FetchClientById :one
+select * from skroman_client
+where id = $1
+limit 1;

@@ -29,6 +29,8 @@ type UserService interface {
 	CreateSkromanClient(req dtos.CreateSkromanClientRequestDTO) (dtos.SkromanClientDTO, error)
 	FetchAllClients(req dtos.GetUsersRequestParams) ([]dtos.SkromanClientDTO, error)
 	DeleteClient(client_id string) error
+	CountOFClients() (int64, error)
+	FetchClientById(client_id string) (dtos.SkromanClientDTO, error)
 }
 
 type user_service struct {
@@ -429,4 +431,36 @@ func (ser *user_service) DeleteClient(client_id string) error {
 	}
 
 	return nil
+}
+
+func (ser *user_service) FetchClientById(client_id string) (dtos.SkromanClientDTO, error) {
+	client_obj_id, err := uuid.Parse(client_id)
+
+	if err != nil {
+		return dtos.SkromanClientDTO{}, helper.ERR_INVALID_ID
+	}
+
+	result, err := ser.user_repo.FetchClientById(client_obj_id)
+
+	if err != nil {
+		return dtos.SkromanClientDTO{}, err
+	}
+
+	return dtos.SkromanClientDTO{
+		ID:        result.ID,
+		UserName:  result.UserName,
+		Email:     result.Email,
+		Contact:   result.Contact,
+		Address:   result.Address,
+		City:      result.City.String,
+		State:     result.State.String,
+		Pincode:   result.Pincode.String,
+		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
+	}, nil
+
+}
+
+func (ser *user_service) CountOFClients() (int64, error) {
+	return ser.user_repo.CountOfClient()
 }
