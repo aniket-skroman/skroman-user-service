@@ -95,7 +95,7 @@ type CreateSkromanClientRequestDTO struct {
 	Address  string `json:"address" binding:"required"`
 	City     string `json:"city" `
 	State    string `json:"state" `
-	Pincode  string `json:"pincode" `
+	Pincode  string `json:"pinCode" `
 }
 
 type SkromanClientDTO struct {
@@ -107,7 +107,7 @@ type SkromanClientDTO struct {
 	Address   string    `json:"address" `
 	City      string    `json:"city" `
 	State     string    `json:"state" `
-	Pincode   string    `json:"pincode" `
+	Pincode   string    `json:"pinCode" `
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
