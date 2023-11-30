@@ -3,9 +3,11 @@ package querytest
 import (
 	"context"
 	"database/sql"
+	"log"
 	"testing"
 
 	db "github.com/aniket-skroman/skroman-user-service/sqlc_lib"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -43,4 +45,17 @@ func TestFetchAllSkromanClients(t *testing.T) {
 
 	require.NoError(t, err)
 	require.NotEmpty(t, clients)
+
+	for i := range clients {
+		log.Println("ID \n", clients[i].ID)
+	}
+}
+
+func TestFetchClientById(t *testing.T) {
+	client_id, _ := uuid.Parse("7aa1899a-11de-481d-ba35-97b10c0d1a71")
+
+	client, err := testQueries.FetchClientById(context.Background(), client_id)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, client)
 }
