@@ -44,34 +44,34 @@ func (cont *user_controller) CreateNewUser(ctx *gin.Context) {
 	var req dtos.CreateUserRequestDTO
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response := utils.RequestParamsMissingResponse("provide a required params")
-		ctx.JSON(http.StatusBadRequest, response)
+		cont.response = utils.BuildFailedResponse(helper.Handle_required_param_error(err))
+		ctx.JSON(http.StatusBadRequest, cont.response)
 		return
 	}
 
 	user, err := cont.user_ser.CreateNewUser(req)
 
 	if err != nil {
-		response := utils.BuildFailedResponse(err.Error())
-		if strings.Contains(err.Error(), "already exits") {
-			ctx.JSON(http.StatusConflict, response)
+		cont.response = utils.BuildFailedResponse(err.Error())
+		if err == helper.Err_Account_Already_Exists {
+			ctx.JSON(http.StatusConflict, cont.response)
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, response)
+		ctx.JSON(http.StatusInternalServerError, cont.response)
 		return
 	}
 
-	response := utils.BuildSuccessResponse(utils.USER_REGISTRATION_SUCCESS, utils.USER_DATA, user)
-	ctx.JSON(http.StatusCreated, response)
+	cont.response = utils.BuildSuccessResponse(utils.USER_REGISTRATION_SUCCESS, utils.USER_DATA, user)
+	ctx.JSON(http.StatusCreated, cont.response)
 }
 
 func (cont *user_controller) LoginUser(ctx *gin.Context) {
 	var req dtos.LoginUserRequestDTO
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		response := utils.BuildFailedResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		cont.response = utils.BuildFailedResponse(helper.Handle_required_param_error(err))
+		ctx.JSON(http.StatusBadRequest, cont.response)
 		return
 	}
 
@@ -79,51 +79,85 @@ func (cont *user_controller) LoginUser(ctx *gin.Context) {
 
 	if err != nil {
 
-		if strings.Contains(err.Error(), "no rows in result set") {
-			response := utils.BuildFailedResponse("account does not exists")
-			ctx.JSON(http.StatusNotFound, response)
+		if err == sql.ErrNoRows {
+			cont.response = utils.BuildFailedResponse("account does not exists")
+			ctx.JSON(http.StatusNotFound, cont.response)
 			return
 		} else if strings.Contains(err.Error(), "does not matched") {
-			response := utils.BuildFailedResponse(err.Error())
-			ctx.JSON(http.StatusUnauthorized, response)
+			cont.response = utils.BuildFailedResponse(err.Error())
+			ctx.JSON(http.StatusUnauthorized, cont.response)
 			return
 		}
-		response := utils.BuildFailedResponse(err.Error())
-		ctx.JSON(http.StatusInternalServerError, response)
+		cont.response = utils.BuildFailedResponse(err.Error())
+		ctx.JSON(http.StatusInternalServerError, cont.response)
 		return
 	}
 
-	response := utils.BuildSuccessResponse(utils.LOGIN_SUCCESS, utils.USER_DATA, user)
-	ctx.JSON(http.StatusOK, response)
+	cont.response = utils.BuildSuccessResponse(utils.LOGIN_SUCCESS, utils.USER_DATA, user)
+	ctx.JSON(http.StatusOK, cont.response)
 }
 
 func (cont *user_controller) UpdateUser(ctx *gin.Context) {
 	var req dtos.UpdateUserRequestDTO
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response := utils.BuildFailedResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		cont.response = utils.BuildFailedResponse(helper.Handle_required_param_error(err))
+		ctx.JSON(http.StatusBadRequest, cont.response)
 		return
 	}
 
 	user, err := cont.user_ser.UpdateUser(req)
 
 	if err != nil {
-		response := utils.BuildFailedResponse(err.Error())
+		cont.response = utils.BuildFailedResponse(helper.Err_Data_Not_Found.Error())
 		if strings.Contains(err.Error(), "already used by someone") {
-			ctx.JSON(http.StatusConflict, response)
+			ctx.JSON(http.StatusConflict, cont.response)
+			return
+		} else if err == sql.ErrNoRows {
+			cont.response = utils.BuildFailedResponse(helper.Err_Data_Not_Found.Error())
+			ctx.JSON(http.StatusNotFound, cont.response)
+			return
+		} else if err == helper.ERR_INVALID_ID {
+			ctx.JSON(http.StatusBadRequest, cont.response)
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, response)
+
+		ctx.JSON(http.StatusInternalServerError, cont.response)
 		return
 	}
 
-	response := utils.BuildSuccessResponse(utils.UPDATE_SUCCESS, utils.USER_DATA, user)
-	ctx.JSON(http.StatusOK, response)
+	cont.response = utils.BuildSuccessResponse(utils.UPDATE_SUCCESS, utils.USER_DATA, user)
+	ctx.JSON(http.StatusOK, cont.response)
 }
 
 func (cont *user_controller) FetchAllUsers(ctx *gin.Context) {
 	var req dtos.GetUsersRequestParams
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		cont.response = utils.BuildFailedResponse(helper.Handle_required_param_error(err))
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	users, err := cont.user_ser.FetchAllUsers(req)
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(err.Error())
+		if err == helper.Err_Data_Not_Found || err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, cont.response)
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, cont.response)
+		return
+	}
+
+	cont.response = utils.BuildResponseWithPagination(utils.FETCHED_SUCCESS, "", utils.USER_DATA, users)
+	ctx.JSON(http.StatusOK, cont.response)
+}
+
+func (cont *user_controller) DeleteUser(ctx *gin.Context) {
+	var req dtos.DeleteUserRequestDTO
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		response := utils.BuildFailedResponse(helper.Handle_required_param_error(err))
@@ -131,37 +165,20 @@ func (cont *user_controller) FetchAllUsers(ctx *gin.Context) {
 		return
 	}
 
-	users, err := cont.user_ser.FetchAllUsers(req)
-
-	if err != nil {
-		response := utils.BuildFailedResponse(err.Error())
-		if strings.Contains(err.Error(), "data not found") {
-			ctx.JSON(http.StatusNotFound, response)
-			return
-		}
-
-		ctx.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	response := utils.BuildResponseWithPagination(utils.FETCHED_SUCCESS, "", utils.USER_DATA, users)
-	ctx.JSON(http.StatusOK, response)
-}
-
-func (cont *user_controller) DeleteUser(ctx *gin.Context) {
-	var req dtos.DeleteUserRequestDTO
-
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		response := utils.BuildFailedResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
 	err := cont.user_ser.DeleteUser(req)
 
 	if err != nil {
-		response := utils.BuildFailedResponse(err.Error())
-		ctx.JSON(http.StatusInternalServerError, response)
+		cont.response = utils.BuildFailedResponse(err.Error())
+
+		if err == helper.ERR_INVALID_ID {
+			ctx.JSON(http.StatusBadRequest, cont.response)
+			return
+		} else if err == helper.Err_Delete_Failed {
+			ctx.JSON(http.StatusConflict, cont.response)
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, cont.response)
 		return
 	}
 
@@ -179,22 +196,22 @@ func (cont *user_controller) FetchUserById(ctx *gin.Context) {
 	user_id, err := uuid.Parse(utils.TOKEN_ID)
 
 	if err != nil {
-		response := utils.BuildFailedResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		cont.response = utils.BuildFailedResponse(helper.ERR_INVALID_ID.Error())
+		ctx.JSON(http.StatusBadRequest, cont.response)
 		return
 	}
 
 	user, err := cont.user_ser.FetchUserById(user_id)
 
 	if err != nil {
-		response := utils.BuildFailedResponse(err.Error())
+		cont.response = utils.BuildFailedResponse(err.Error())
 
-		if strings.Contains(err.Error(), "not found") {
-			ctx.JSON(http.StatusNotFound, response)
+		if err == helper.Err_Data_Not_Found {
+			ctx.JSON(http.StatusNotFound, cont.response)
 			return
 		}
 
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.JSON(http.StatusBadRequest, cont.response)
 		return
 	}
 

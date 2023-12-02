@@ -3,9 +3,7 @@ package services
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"reflect"
-	"strings"
 	"sync"
 
 	"github.com/aniket-skroman/skroman-user-service/apis/dtos"
@@ -46,10 +44,6 @@ func NewUserService(repo repositories.UserRepository, jwt_service JWTService) Us
 }
 
 func (ser *user_service) CreateNewUser(req dtos.CreateUserRequestDTO) (dtos.UserDTO, error) {
-	if req.UserType == "" || len(req.UserType) == 0 {
-		return dtos.UserDTO{}, errors.New("user type can not be empty")
-	}
-
 	//		check for duplicate account create
 	dupl_args := db.CheckEmailOrContactExistsParams{
 		Email:   req.Email,
@@ -61,7 +55,7 @@ func (ser *user_service) CreateNewUser(req dtos.CreateUserRequestDTO) (dtos.User
 		return dtos.UserDTO{}, err
 	}
 	if result != 0 {
-		return dtos.UserDTO{}, errors.New("this account already exits")
+		return dtos.UserDTO{}, helper.Err_Account_Already_Exists
 	}
 
 	// check for duplicate
@@ -75,6 +69,7 @@ func (ser *user_service) CreateNewUser(req dtos.CreateUserRequestDTO) (dtos.User
 		Contact:    req.Contact,
 		UserType:   req.UserType,
 		Department: req.Department,
+		EmpCode:    req.EmpCode,
 	}
 
 	user, err := ser.user_repo.CreateNewUser(args)
@@ -138,7 +133,7 @@ func (ser *user_service) UpdateUser(req dtos.UpdateUserRequestDTO) (dtos.UserDTO
 	user_id, err := uuid.Parse(req.ID)
 
 	if err != nil {
-		return dtos.UserDTO{}, err
+		return dtos.UserDTO{}, helper.ERR_INVALID_ID
 	}
 
 	// check the contact should be unique
@@ -153,6 +148,7 @@ func (ser *user_service) UpdateUser(req dtos.UpdateUserRequestDTO) (dtos.UserDTO
 		FullName: req.FullName,
 		Contact:  req.Contact,
 		UserType: req.UserType,
+		EmpCode:  req.EmpCode,
 	}
 
 	result, err := ser.user_repo.UpdateUser(args)
@@ -164,7 +160,7 @@ func (ser *user_service) UpdateUser(req dtos.UpdateUserRequestDTO) (dtos.UserDTO
 	rows_affected, _ := result.RowsAffected()
 
 	if rows_affected == 0 {
-		return dtos.UserDTO{}, errors.New("faild to update")
+		return dtos.UserDTO{}, helper.Err_Update_Failed
 	}
 
 	return dtos.UserDTO{
@@ -184,11 +180,11 @@ func (ser *user_service) check_duplicate_contact(contact string, user_id uuid.UU
 
 	user, err := ser.user_repo.CheckForContact(args)
 
-	if err != nil && !strings.Contains(err.Error(), " no rows") {
+	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
-	fmt.Println("User found : ", user)
-	if !reflect.DeepEqual(user, db.Users{}) && user.ID != user_id {
+
+	if user.ID != uuid.Nil && user.ID != user_id {
 		return errors.New("contact is already used by someone")
 	}
 
@@ -225,7 +221,7 @@ func (ser *user_service) FetchAllUsers(req dtos.GetUsersRequestParams) ([]dtos.U
 	}
 
 	if len(result) == 0 {
-		return nil, errors.New(utils.DATA_NOT_FOUND)
+		return nil, helper.Err_Data_Not_Found
 	}
 
 	users := new(dtos.UserDTO).MakeUserDTO("", result...)
@@ -253,7 +249,7 @@ func (ser *user_service) DeleteUser(req dtos.DeleteUserRequestDTO) error {
 	user_id, err := uuid.Parse(req.UserId)
 
 	if err != nil {
-		return err
+		return helper.ERR_INVALID_ID
 	}
 
 	result, err := ser.user_repo.DeleteUser(user_id)
@@ -263,7 +259,7 @@ func (ser *user_service) DeleteUser(req dtos.DeleteUserRequestDTO) error {
 	}
 
 	if result == 0 {
-		return errors.New(utils.DELETE_FAILED)
+		return helper.Err_Delete_Failed
 	}
 
 	return nil
@@ -292,7 +288,7 @@ func (ser *user_service) FetchUserById(user_id uuid.UUID) (dtos.UserDTO, error) 
 	user := new(dtos.UserDTO).MakeUserDTO("", result)
 
 	if reflect.DeepEqual(user.(dtos.UserDTO), dtos.UserDTO{}) {
-		return dtos.UserDTO{}, errors.New("user not found")
+		return dtos.UserDTO{}, helper.Err_Data_Not_Found
 	}
 
 	return user.(dtos.UserDTO), nil

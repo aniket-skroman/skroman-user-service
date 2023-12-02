@@ -13,7 +13,7 @@ import (
 )
 
 const checkEmailOrContactExists = `-- name: CheckEmailOrContactExists :execrows
-select id, full_name, email, password, contact, user_type, created_at, updated_at, department from users
+select id, full_name, email, password, contact, user_type, created_at, updated_at, department, emp_code from users
 where email=$1 or contact=$2
 limit 1
 `
@@ -32,7 +32,7 @@ func (q *Queries) CheckEmailOrContactExists(ctx context.Context, arg CheckEmailO
 }
 
 const checkForContact = `-- name: CheckForContact :one
-select id, full_name, email, password, contact, user_type, created_at, updated_at, department from users 
+select id, full_name, email, password, contact, user_type, created_at, updated_at, department, emp_code from users 
 where contact = $1
 and id <> $2
 `
@@ -55,6 +55,7 @@ func (q *Queries) CheckForContact(ctx context.Context, arg CheckForContactParams
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Department,
+		&i.EmpCode,
 	)
 	return i, err
 }
@@ -90,10 +91,11 @@ insert into users (
     password,
     contact,
     user_type,
-    department
+    department,
+    emp_code
 ) values (
-    $1,$2,$3,$4,$5,$6
-) returning id, full_name, email, password, contact, user_type, created_at, updated_at, department
+    $1,$2,$3,$4,$5,$6,$7
+) returning id, full_name, email, password, contact, user_type, created_at, updated_at, department, emp_code
 `
 
 type CreateNewUserParams struct {
@@ -103,6 +105,7 @@ type CreateNewUserParams struct {
 	Contact    string `json:"contact"`
 	UserType   string `json:"user_type"`
 	Department string `json:"department"`
+	EmpCode    string `json:"emp_code"`
 }
 
 func (q *Queries) CreateNewUser(ctx context.Context, arg CreateNewUserParams) (Users, error) {
@@ -113,6 +116,7 @@ func (q *Queries) CreateNewUser(ctx context.Context, arg CreateNewUserParams) (U
 		arg.Contact,
 		arg.UserType,
 		arg.Department,
+		arg.EmpCode,
 	)
 	var i Users
 	err := row.Scan(
@@ -125,6 +129,7 @@ func (q *Queries) CreateNewUser(ctx context.Context, arg CreateNewUserParams) (U
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Department,
+		&i.EmpCode,
 	)
 	return i, err
 }
@@ -143,7 +148,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) (int64, error) {
 }
 
 const fetchAllUsers = `-- name: FetchAllUsers :many
-select id, full_name, email, password, contact, user_type, created_at, updated_at, department from users 
+select id, full_name, email, password, contact, user_type, created_at, updated_at, department, emp_code from users 
 order by created_at desc 
 limit $1
 offset $2
@@ -173,6 +178,7 @@ func (q *Queries) FetchAllUsers(ctx context.Context, arg FetchAllUsersParams) ([
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Department,
+			&i.EmpCode,
 		); err != nil {
 			return nil, err
 		}
@@ -188,7 +194,7 @@ func (q *Queries) FetchAllUsers(ctx context.Context, arg FetchAllUsersParams) ([
 }
 
 const getUserByEmailOrContact = `-- name: GetUserByEmailOrContact :one
-select id, full_name, email, password, contact, user_type, created_at, updated_at, department from users
+select id, full_name, email, password, contact, user_type, created_at, updated_at, department, emp_code from users
 where email=$1 or contact = $1
 limit 1
 `
@@ -206,12 +212,13 @@ func (q *Queries) GetUserByEmailOrContact(ctx context.Context, email string) (Us
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Department,
+		&i.EmpCode,
 	)
 	return i, err
 }
 
 const getUserById = `-- name: GetUserById :one
-select id, full_name, email, password, contact, user_type, created_at, updated_at, department from users
+select id, full_name, email, password, contact, user_type, created_at, updated_at, department, emp_code from users
 where id = $1
 limit 1
 `
@@ -229,6 +236,7 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (Users, error) 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Department,
+		&i.EmpCode,
 	)
 	return i, err
 }
@@ -238,9 +246,10 @@ update users
 set full_name=$2,
 contact=$3,
 user_type=$4,
+emp_code=$5,
 updated_at = CURRENT_TIMESTAMP
 where id=$1 
-returning id, full_name, email, password, contact, user_type, created_at, updated_at, department
+returning id, full_name, email, password, contact, user_type, created_at, updated_at, department, emp_code
 `
 
 type UpdateUserParams struct {
@@ -248,6 +257,7 @@ type UpdateUserParams struct {
 	FullName string    `json:"full_name"`
 	Contact  string    `json:"contact"`
 	UserType string    `json:"user_type"`
+	EmpCode  string    `json:"emp_code"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (sql.Result, error) {
@@ -256,11 +266,12 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (sql.Res
 		arg.FullName,
 		arg.Contact,
 		arg.UserType,
+		arg.EmpCode,
 	)
 }
 
 const usersByDepartment = `-- name: UsersByDepartment :many
-select id, full_name, email, password, contact, user_type, created_at, updated_at, department from users 
+select id, full_name, email, password, contact, user_type, created_at, updated_at, department, emp_code from users 
 where department = $1
 group by id
 order by created_at desc 
@@ -294,6 +305,7 @@ func (q *Queries) UsersByDepartment(ctx context.Context, arg UsersByDepartmentPa
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Department,
+			&i.EmpCode,
 		); err != nil {
 			return nil, err
 		}

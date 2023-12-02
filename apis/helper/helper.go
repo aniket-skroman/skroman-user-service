@@ -108,7 +108,7 @@ func msgForTag(tag string) string {
 	case "oneof":
 		return "Invalid params"
 	}
-	return ""
+	return "unexpected input detected"
 }
 
 var key = "skroman-user-servi-12345"

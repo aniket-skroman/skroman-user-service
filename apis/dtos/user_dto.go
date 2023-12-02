@@ -12,6 +12,7 @@ type CreateUserRequestDTO struct {
 	Email      string `json:"email" binding:"required,email"`
 	Password   string `json:"password" binding:"required"`
 	Contact    string `json:"contact" binding:"required,min=10"`
+	EmpCode    string `json:"emp_code" binding:"required"`
 	Department string `json:"department" binding:"required,oneof=SALES INSTALLATION ACCOUNT INVENTORY PRODUCTION"`
 	UserType   string `json:"user_type" binding:"required,oneof=EMP ADMIN SUPER-ADMIN"`
 }
@@ -21,6 +22,7 @@ type UpdateUserRequestDTO struct {
 	FullName string `json:"full_name" binding:"required"`
 	Contact  string `json:"contact" binding:"required,min=10"`
 	UserType string `json:"user_type" binding:"required"`
+	EmpCode  string `json:"emp_code" binding:"required"`
 }
 
 type LoginUserRequestDTO struct {
@@ -44,7 +46,7 @@ type UserDTO struct {
 	Email       string     `json:"email,omitempty"`
 	Contact     string     `json:"contact"`
 	UserType    string     `json:"user_type"`
-	Department  string     `json:"department"`
+	Department  string     `json:"department,omitempty"`
 	AccessToken string     `json:"access_token,omitempty"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`

@@ -5,9 +5,10 @@ insert into users (
     password,
     contact,
     user_type,
-    department
+    department,
+    emp_code
 ) values (
-    $1,$2,$3,$4,$5,$6
+    $1,$2,$3,$4,$5,$6,$7
 ) returning *;
 
 
@@ -35,6 +36,7 @@ update users
 set full_name=$2,
 contact=$3,
 user_type=$4,
+emp_code=$5,
 updated_at = CURRENT_TIMESTAMP
 where id=$1 
 returning *;
