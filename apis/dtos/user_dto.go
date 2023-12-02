@@ -46,6 +46,7 @@ type UserDTO struct {
 	Email       string     `json:"email,omitempty"`
 	Contact     string     `json:"contact"`
 	UserType    string     `json:"user_type"`
+	EmpCode     string     `json:"emp_code"`
 	Department  string     `json:"department,omitempty"`
 	AccessToken string     `json:"access_token,omitempty"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
@@ -61,6 +62,7 @@ func (user *UserDTO) MakeUserDTO(access_token string, module_data ...db.Users) i
 			Contact:     module_data[0].Contact,
 			UserType:    module_data[0].UserType,
 			AccessToken: access_token,
+			EmpCode:     module_data[0].EmpCode,
 			Department:  module_data[0].Department,
 			CreatedAt:   &module_data[0].CreatedAt,
 			UpdatedAt:   &module_data[0].UpdatedAt,
@@ -79,6 +81,7 @@ func (user *UserDTO) MakeUserDTO(access_token string, module_data ...db.Users) i
 			Contact:    module_data[i].Contact,
 			UserType:   module_data[i].UserType,
 			Department: module_data[i].Department,
+			EmpCode:    module_data[i].EmpCode,
 			CreatedAt:  &module_data[i].CreatedAt,
 			UpdatedAt:  &module_data[i].UpdatedAt,
 		}
