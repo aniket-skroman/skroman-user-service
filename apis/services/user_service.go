@@ -249,6 +249,7 @@ func (ser *user_service) setUserData(wg *sync.WaitGroup, result *dtos.UserDTO, d
 		Contact:     data.Contact,
 		UserType:    data.UserType,
 		AccessToken: "",
+		EmpCode:     data.EmpCode,
 		CreatedAt:   &data.CreatedAt,
 		UpdatedAt:   &data.UpdatedAt,
 	}
