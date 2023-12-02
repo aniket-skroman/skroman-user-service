@@ -24,6 +24,10 @@ func Handle_DBError(err error) (err_ error) {
 				err_ = Err_Account_Already_Exists
 				return
 			}
+			if strings.Contains(e.Message, "emp_code") {
+				err_ = Err_EMP_Code_Exists
+				return
+			}
 			err_ = errors.New(e.Detail)
 			return
 

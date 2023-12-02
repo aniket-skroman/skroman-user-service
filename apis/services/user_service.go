@@ -152,7 +152,7 @@ func (ser *user_service) UpdateUser(req dtos.UpdateUserRequestDTO) (dtos.UserDTO
 	}
 
 	result, err := ser.user_repo.UpdateUser(args)
-
+	err = helper.Handle_DBError(err)
 	if err != nil {
 		return dtos.UserDTO{}, err
 	}
@@ -195,6 +195,7 @@ func (ser *user_service) FetchAllUsers(req dtos.GetUsersRequestParams) ([]dtos.U
 	// fetch count
 	wg := sync.WaitGroup{}
 	wg.Add(2)
+	var users []dtos.UserDTO
 	var result []db.Users
 	var err error
 
@@ -212,6 +213,17 @@ func (ser *user_service) FetchAllUsers(req dtos.GetUsersRequestParams) ([]dtos.U
 			Department: req.Department,
 		}
 		result, err = ser.user_repo.FetchUsersByDepartment(args)
+
+		users = make([]dtos.UserDTO, len(result))
+		t_wg := sync.WaitGroup{}
+
+		for i := range result {
+			t_wg.Add(1)
+			go ser.setUserData(&t_wg, &users[i], &result[i])
+		}
+
+		t_wg.Wait()
+
 	}()
 	wg.Wait()
 	err = helper.Handle_DBError(err)
@@ -224,25 +236,22 @@ func (ser *user_service) FetchAllUsers(req dtos.GetUsersRequestParams) ([]dtos.U
 		return nil, helper.Err_Data_Not_Found
 	}
 
-	users := new(dtos.UserDTO).MakeUserDTO("", result...)
+	return users, nil
+}
 
-	if _, ok := users.([]dtos.UserDTO); ok {
-		return users.([]dtos.UserDTO), nil
+func (ser *user_service) setUserData(wg *sync.WaitGroup, result *dtos.UserDTO, data *db.Users) {
+	defer wg.Done()
+
+	*result = dtos.UserDTO{
+		ID:          data.ID,
+		FullName:    data.FullName,
+		Email:       data.Email,
+		Contact:     data.Contact,
+		UserType:    data.UserType,
+		AccessToken: "",
+		CreatedAt:   &data.CreatedAt,
+		UpdatedAt:   &data.UpdatedAt,
 	}
-	s_user := users.(dtos.UserDTO)
-
-	return []dtos.UserDTO{
-		{
-			ID:          s_user.ID,
-			FullName:    s_user.FullName,
-			Email:       s_user.Email,
-			Contact:     s_user.Contact,
-			UserType:    s_user.UserType,
-			AccessToken: "",
-			CreatedAt:   s_user.CreatedAt,
-			UpdatedAt:   s_user.UpdatedAt,
-		},
-	}, nil
 }
 
 func (ser *user_service) DeleteUser(req dtos.DeleteUserRequestDTO) error {

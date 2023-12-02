@@ -12,6 +12,7 @@ var (
 	Err_Something_Wents_Wrong  error
 	Err_Invalid_Input          error
 	Err_Account_Already_Exists error
+	Err_EMP_Code_Exists        error
 )
 
 func init() {
@@ -24,4 +25,5 @@ func init() {
 	Err_Something_Wents_Wrong = errors.New("something wents wrong")
 	Err_Invalid_Input = errors.New("invalid input found")
 	Err_Account_Already_Exists = errors.New("account already exists")
+	Err_EMP_Code_Exists = errors.New("emp code already exists for other employee")
 }

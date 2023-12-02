@@ -1,11 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 
 	"github.com/aniket-skroman/skroman-user-service/apis"
+	"github.com/aniket-skroman/skroman-user-service/apis/database"
 	"github.com/aniket-skroman/skroman-user-service/apis/routers"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -27,16 +27,6 @@ func CORSConfig() cors.Config {
 	return corsConfig
 }
 
-func init() {
-	// if err := godotenv.Load(".env"); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// dbDriver = os.Getenv("DB_DRIVER")
-	// dbSource = os.Getenv("LOCAL_DB_SOURCE")
-	// address = os.Getenv("LOCAL_ADDRESS")
-}
-
 const (
 	ContentTypeBinary = "application/octet-stream"
 	ContentTypeForm   = "application/x-www-form-urlencoded"
@@ -46,16 +36,14 @@ const (
 )
 
 func main() {
-	db, err := sql.Open(dbDriver, dbSource)
+
+	db, err := database.DB_INSTANCE()
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
+	defer database.CloseDBConnection(db)
 
 	router := gin.New()
 	router.Use(cors.New(CORSConfig()))

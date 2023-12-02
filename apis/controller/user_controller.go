@@ -2,6 +2,7 @@ package controller
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -109,7 +110,8 @@ func (cont *user_controller) UpdateUser(ctx *gin.Context) {
 	user, err := cont.user_ser.UpdateUser(req)
 
 	if err != nil {
-		cont.response = utils.BuildFailedResponse(helper.Err_Data_Not_Found.Error())
+		fmt.Println("Error : ", err)
+		cont.response = utils.BuildFailedResponse(err.Error())
 		if strings.Contains(err.Error(), "already used by someone") {
 			ctx.JSON(http.StatusConflict, cont.response)
 			return
@@ -120,10 +122,13 @@ func (cont *user_controller) UpdateUser(ctx *gin.Context) {
 		} else if err == helper.ERR_INVALID_ID {
 			ctx.JSON(http.StatusBadRequest, cont.response)
 			return
+		} else if err == helper.Err_EMP_Code_Exists {
+			ctx.JSON(http.StatusConflict, cont.response)
+			return
+		} else {
+			ctx.JSON(http.StatusInternalServerError, cont.response)
+			return
 		}
-
-		ctx.JSON(http.StatusInternalServerError, cont.response)
-		return
 	}
 
 	cont.response = utils.BuildSuccessResponse(utils.UPDATE_SUCCESS, utils.USER_DATA, user)
