@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 
@@ -13,9 +14,7 @@ import (
 )
 
 var (
-	dbDriver = "postgres"
-	dbSource = "postgresql://postgres:support12@skroman-user.ckwveljlsuux.ap-south-1.rds.amazonaws.com:5432/skroman_users"
-	address  = ":8080"
+	address = ":8080"
 )
 
 func CORSConfig() cors.Config {
@@ -35,29 +34,51 @@ const (
 	ContentTypeText   = "text/plain; charset=utf-8"
 )
 
-func main() {
+type APIServer struct{}
 
+func (api *APIServer) make_db_connection() (*sql.DB, error) {
 	db, err := database.DB_INSTANCE()
-
 	if err != nil {
 		log.Fatal(err)
 	}
+	return db, nil
+}
 
-	defer database.CloseDBConnection(db)
+func (api *APIServer) init_app_route() *gin.Engine {
+	r := gin.New()
+	r.Use(cors.New(CORSConfig()))
 
-	router := gin.New()
-	router.Use(cors.New(CORSConfig()))
-	router.Static("static", "static")
+	return r
+}
 
-	store := apis.NewStore(db)
-
-	router.GET("/", func(ctx *gin.Context) {
+func (api *APIServer) make_app_route(route *gin.Engine, db *sql.DB) {
+	route.GET("/", func(ctx *gin.Context) {
 		ctx.Data(http.StatusOK, ContentTypeHTML, []byte("<html>Program file run...</html>"))
 	})
 
-	routers.UserRouters(router, store)
+	store := apis.NewStore(db)
 
-	if err := router.Run(address); err != nil {
+	routers.UserRouters(route, store)
+
+}
+
+func (api *APIServer) run_app(route *gin.Engine) error {
+	return route.Run(address)
+}
+
+func main() {
+
+	app_server := APIServer{}
+
+	db, _ := app_server.make_db_connection()
+
+	defer database.CloseDBConnection(db)
+
+	route := app_server.init_app_route()
+
+	app_server.make_app_route(route, db)
+
+	if err := app_server.run_app(route); err != nil {
 		log.Fatal(err)
 	}
 }

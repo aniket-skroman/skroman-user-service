@@ -3,7 +3,6 @@ package services
 import (
 	"database/sql"
 	"errors"
-	"reflect"
 	"sync"
 
 	"github.com/aniket-skroman/skroman-user-service/apis/dtos"
@@ -297,7 +296,11 @@ func (ser *user_service) FetchUserById(user_id uuid.UUID) (dtos.UserDTO, error) 
 
 	user := new(dtos.UserDTO).MakeUserDTO("", result)
 
-	if reflect.DeepEqual(user.(dtos.UserDTO), dtos.UserDTO{}) {
+	// if reflect.DeepEqual(user.(dtos.UserDTO), dtos.UserDTO{}) {
+	// 	return dtos.UserDTO{}, helper.Err_Data_Not_Found
+	// }
+
+	if (user.(dtos.UserDTO) == dtos.UserDTO{}) {
 		return dtos.UserDTO{}, helper.Err_Data_Not_Found
 	}
 
