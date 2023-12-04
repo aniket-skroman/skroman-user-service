@@ -29,8 +29,6 @@ func Handle_DBError(err error) (err_ error) {
 			return
 
 		case "23514":
-			fmt.Println("Handle_DBError called from constraint check")
-
 			// check constraint violation
 			if strings.Contains(e.Message, "contact") {
 				err_ = errors.New("contact should not be empty")
@@ -66,23 +64,4 @@ func Handle_DBError(err error) (err_ error) {
 	}
 
 	return
-}
-
-func validate_err_msg(err_msg *string) error {
-	var err error
-
-	// if strings.Contains(*err_msg, "contact") {
-	// 	err = errors.New("contact should not be empty")
-	// } else if strings.Contains(*err_msg, "email") {
-	// 	err = errors.New("email should not be empty")
-	// }else if {}
-
-	switch {
-	case strings.Contains(*err_msg, "users_full_name_key"):
-		err = errors.New("full name is already exists")
-	default:
-		err = errors.New("can't process the request")
-	}
-
-	return err
 }

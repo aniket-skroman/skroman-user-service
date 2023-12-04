@@ -2,7 +2,6 @@ package controller
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -111,7 +110,6 @@ func (cont *user_controller) UpdateUser(ctx *gin.Context) {
 	user, err := cont.user_ser.UpdateUser(req)
 
 	if err != nil {
-		fmt.Println("Error : ", err)
 		cont.response = utils.BuildFailedResponse(err.Error())
 		if strings.Contains(err.Error(), "already used by someone") {
 			ctx.JSON(http.StatusConflict, cont.response)
