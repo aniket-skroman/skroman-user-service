@@ -29,6 +29,7 @@ type UserRepository interface {
 	CountOfClient() (int64, error)
 	DeleteClient(client_id uuid.UUID) (sql.Result, error)
 	FetchClientById(client_id uuid.UUID) (db.SkromanClient, error)
+	UpdateSkromanClientInfo(args db.UpdateSkromanClientInfoParams) (db.SkromanClient, error)
 }
 
 type user_repository struct {

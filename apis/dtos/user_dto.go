@@ -103,6 +103,11 @@ type CreateSkromanClientRequestDTO struct {
 	Pincode  string `json:"pinCode" `
 }
 
+type UpdateSkromanClientInfoRequestDTO struct {
+	Id string
+	CreateSkromanClientRequestDTO
+}
+
 type SkromanClientDTO struct {
 	ID        uuid.UUID `json:"id"`
 	UserName  string    `json:"user_name" `

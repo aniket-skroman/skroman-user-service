@@ -158,3 +158,55 @@ func (q *Queries) FetchClientById(ctx context.Context, id uuid.UUID) (SkromanCli
 	)
 	return i, err
 }
+
+const updateSkromanClientInfo = `-- name: UpdateSkromanClientInfo :one
+update skroman_client
+set user_name=$2,
+email=$3,password=$4,contact=$5,
+address=$6,city=$7,state=$8,pincode=$9,
+updated_at = CURRENT_TIMESTAMP
+where id=$1
+returning id, user_name, email, password, contact, address, city, state, pincode, created_at, updated_at
+`
+
+type UpdateSkromanClientInfoParams struct {
+	ID       uuid.UUID      `json:"id"`
+	UserName string         `json:"user_name"`
+	Email    string         `json:"email"`
+	Password sql.NullString `json:"password"`
+	Contact  string         `json:"contact"`
+	Address  string         `json:"address"`
+	City     sql.NullString `json:"city"`
+	State    sql.NullString `json:"state"`
+	Pincode  sql.NullString `json:"pincode"`
+}
+
+// update skroman client info
+func (q *Queries) UpdateSkromanClientInfo(ctx context.Context, arg UpdateSkromanClientInfoParams) (SkromanClient, error) {
+	row := q.db.QueryRowContext(ctx, updateSkromanClientInfo,
+		arg.ID,
+		arg.UserName,
+		arg.Email,
+		arg.Password,
+		arg.Contact,
+		arg.Address,
+		arg.City,
+		arg.State,
+		arg.Pincode,
+	)
+	var i SkromanClient
+	err := row.Scan(
+		&i.ID,
+		&i.UserName,
+		&i.Email,
+		&i.Password,
+		&i.Contact,
+		&i.Address,
+		&i.City,
+		&i.State,
+		&i.Pincode,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

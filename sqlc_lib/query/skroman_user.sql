@@ -31,3 +31,13 @@ where id = $1;
 select * from skroman_client
 where id = $1
 limit 1;
+
+/* update skroman client info */
+-- name: UpdateSkromanClientInfo :one
+update skroman_client
+set user_name=$2,
+email=$3,password=$4,contact=$5,
+address=$6,city=$7,state=$8,pincode=$9,
+updated_at = CURRENT_TIMESTAMP
+where id=$1
+returning * ;

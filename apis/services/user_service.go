@@ -28,6 +28,7 @@ type UserService interface {
 	DeleteClient(client_id string) error
 	CountOFClients() (int64, error)
 	FetchClientById(client_id string) (dtos.SkromanClientDTO, error)
+	UpdateSkromanClientInfo(req dtos.UpdateSkromanClientInfoRequestDTO) (dtos.SkromanClientDTO, error)
 }
 
 type user_service struct {
@@ -467,9 +468,48 @@ func (ser *user_service) FetchClientById(client_id string) (dtos.SkromanClientDT
 		CreatedAt: result.CreatedAt,
 		UpdatedAt: result.UpdatedAt,
 	}, nil
-
 }
 
 func (ser *user_service) CountOFClients() (int64, error) {
 	return ser.user_repo.CountOfClient()
+}
+
+func (ser *user_service) UpdateSkromanClientInfo(req dtos.UpdateSkromanClientInfoRequestDTO) (dtos.SkromanClientDTO, error) {
+	client_id, err := uuid.Parse(req.Id)
+
+	if err != nil {
+		return dtos.SkromanClientDTO{}, helper.ERR_INVALID_ID
+	}
+
+	args := db.UpdateSkromanClientInfoParams{
+		ID:       client_id,
+		UserName: req.UserName,
+		Email:    req.Email,
+		Password: sql.NullString{String: req.Password, Valid: true},
+		Contact:  req.Contact,
+		Address:  req.Address,
+		City:     sql.NullString{String: req.City, Valid: true},
+		State:    sql.NullString{String: req.State, Valid: true},
+		Pincode:  sql.NullString{String: req.Pincode, Valid: true},
+	}
+
+	result, err := ser.user_repo.UpdateSkromanClientInfo(args)
+	err = helper.Handle_DBError(err)
+
+	if err != nil {
+		return dtos.SkromanClientDTO{}, err
+	}
+
+	return dtos.SkromanClientDTO{
+		ID:        result.ID,
+		UserName:  result.UserName,
+		Email:     result.Email,
+		Contact:   result.Contact,
+		Address:   result.Address,
+		City:      result.City.String,
+		State:     result.State.String,
+		Pincode:   result.Pincode.String,
+		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
+	}, nil
 }

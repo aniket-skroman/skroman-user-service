@@ -120,3 +120,10 @@ func (repo *user_repository) FetchClientById(client_id uuid.UUID) (db.SkromanCli
 
 	return repo.db.Queries.FetchClientById(ctx, client_id)
 }
+
+func (repo *user_repository) UpdateSkromanClientInfo(args db.UpdateSkromanClientInfoParams) (db.SkromanClient, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.UpdateSkromanClientInfo(ctx, args)
+}

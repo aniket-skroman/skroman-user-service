@@ -27,6 +27,7 @@ type UserController interface {
 	DeleteClient(ctx *gin.Context)
 	CountOFClients(ctx *gin.Context)
 	FetchClientById(ctx *gin.Context)
+	UpdateSkromanClientInfo(ctx *gin.Context)
 }
 
 type user_controller struct {
@@ -352,5 +353,45 @@ func (cont *user_controller) FetchClientById(ctx *gin.Context) {
 	}
 
 	cont.response = utils.BuildSuccessResponse(utils.FETCHED_SUCCESS, utils.USER_DATA, result)
+	ctx.JSON(http.StatusOK, cont.response)
+}
+
+func (cont *user_controller) UpdateSkromanClientInfo(ctx *gin.Context) {
+	var req dtos.UpdateSkromanClientInfoRequestDTO
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		cont.response = utils.BuildFailedResponse(helper.Handle_required_param_error(err))
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	client_id := ctx.Param("client_id")
+
+	if client_id == "" {
+		cont.response = utils.RequestParamsMissingResponse(helper.ERR_REQUIRED_PARAMS)
+		ctx.JSON(http.StatusBadRequest, cont.response)
+	}
+
+	req.Id = client_id
+
+	result, err := cont.user_ser.UpdateSkromanClientInfo(req)
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(err.Error())
+
+		if err == helper.ERR_INVALID_ID {
+			ctx.JSON(http.StatusBadRequest, cont.response)
+			return
+		} else if err == helper.Err_Account_Already_Exists {
+			cont.response = utils.BuildFailedResponse("contact already exists for another account")
+			ctx.JSON(http.StatusUnprocessableEntity, cont.response)
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, cont.response)
+		return
+	}
+
+	cont.response = utils.BuildSuccessResponse(utils.UPDATE_SUCCESS, utils.USER_DATA, result)
 	ctx.JSON(http.StatusOK, cont.response)
 }

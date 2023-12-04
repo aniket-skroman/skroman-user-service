@@ -59,3 +59,23 @@ func TestFetchClientById(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, client)
 }
+
+func TestUpdateSkromanClient(t *testing.T) {
+	client_id, _ := uuid.Parse("1706dcea-4d9a-4d06-bf1b-830e10611d6f")
+
+	args := db.UpdateSkromanClientInfoParams{
+		ID:       client_id,
+		UserName: "Test",
+		Email:    "test1@gmail.com",
+		Password: sql.NullString{String: "", Valid: true},
+		Contact:  "8668342234",
+		Address:  "test-address",
+		City:     sql.NullString{String: "test-city", Valid: true},
+		State:    sql.NullString{String: "test-state", Valid: true},
+		Pincode:  sql.NullString{String: "414111", Valid: true},
+	}
+
+	client, err := testQueries.UpdateSkromanClientInfo(context.Background(), args)
+	require.NoError(t, err)
+	require.NotEmpty(t, client)
+}
