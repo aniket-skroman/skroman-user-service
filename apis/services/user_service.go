@@ -228,7 +228,6 @@ func (ser *user_service) FetchAllUsers(req dtos.GetUsersRequestParams) ([]dtos.U
 
 	}()
 	wg.Wait()
-	err = helper.Handle_DBError(err)
 
 	if err != nil {
 		return nil, err

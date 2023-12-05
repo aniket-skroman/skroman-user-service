@@ -14,6 +14,7 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 		user_repo   = repositories.NewUserRepository(store)
 		jwt_service = services.NewJWTService()
 		user_serv   = services.NewUserService(user_repo, jwt_service)
+		auth_cont   = controller.NewAuthController(jwt_service)
 		user_cont   = controller.NewUserController(user_serv)
 	)
 
@@ -40,6 +41,8 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 	{
 		token_val.GET("/validate-token", user_cont.FetchUserById)
 	}
+
+	router.GET("/api/refresh-token", auth_cont.RefreshToken)
 
 	skroman_client := router.Group("/api", middleware.AuthorizeJWT(jwt_service))
 	{
