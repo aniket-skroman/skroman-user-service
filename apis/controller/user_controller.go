@@ -21,12 +21,14 @@ type UserController interface {
 	DeleteUser(*gin.Context)
 	FetchUserById(*gin.Context)
 	CountEmployee(ctx *gin.Context)
+	SearchUsers(ctx *gin.Context)
 	CreateSkromanClient(ctx *gin.Context)
 	FetchAllClients(ctx *gin.Context)
 	DeleteClient(ctx *gin.Context)
 	CountOFClients(ctx *gin.Context)
 	FetchClientById(ctx *gin.Context)
 	UpdateSkromanClientInfo(ctx *gin.Context)
+	SearchClient(ctx *gin.Context)
 }
 
 type user_controller struct {
@@ -229,6 +231,33 @@ func (cont *user_controller) CountEmployee(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+func (cont *user_controller) SearchUsers(ctx *gin.Context) {
+	var req dtos.SearchClientRequestDTO
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		cont.response = utils.BuildFailedResponse(helper.Handle_required_param_error(err))
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	search_result, err := cont.user_ser.SearchUsers(req)
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(err.Error())
+
+		if err == helper.Err_Data_Not_Found {
+			ctx.JSON(http.StatusNotFound, cont.response)
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, cont.response)
+		return
+	}
+
+	cont.response = utils.BuildResponseWithPagination(utils.FETCHED_SUCCESS, "", utils.USER_DATA, search_result)
+	ctx.JSON(http.StatusOK, cont.response)
+}
+
 func (cont *user_controller) CreateSkromanClient(ctx *gin.Context) {
 	var req dtos.CreateSkromanClientRequestDTO
 
@@ -391,5 +420,30 @@ func (cont *user_controller) UpdateSkromanClientInfo(ctx *gin.Context) {
 	}
 
 	cont.response = utils.BuildSuccessResponse(utils.UPDATE_SUCCESS, utils.USER_DATA, result)
+	ctx.JSON(http.StatusOK, cont.response)
+}
+
+func (cont *user_controller) SearchClient(ctx *gin.Context) {
+	var req dtos.SearchClientRequestDTO
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		cont.response = utils.BuildFailedResponse(helper.Handle_required_param_error(err))
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	search_result, err := cont.user_ser.SearchClient(req)
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(err.Error())
+		if err == helper.Err_Data_Not_Found {
+			ctx.JSON(http.StatusNotFound, cont.response)
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, cont.response)
+		return
+	}
+
+	cont.response = utils.BuildResponseWithPagination(utils.FETCHED_SUCCESS, "", utils.USER_DATA, search_result)
 	ctx.JSON(http.StatusOK, cont.response)
 }

@@ -84,6 +84,22 @@ func (repo *user_repository) CountUserByDepartment(dept_name string) (int64, err
 	return repo.db.Queries.CountUsersByDepartment(ctx, dept_name)
 }
 
+// search a user
+func (repo *user_repository) SearchUsers(args db.SearchUsersParams) ([]db.Users, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.SearchUsers(ctx, args)
+}
+
+// count of search user's
+func (repo *user_repository) CountOfSearchUsers(args sql.NullString) (int64, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.CountOfSearchUsers(ctx, args)
+}
+
 //----------------------------------- 	HANDLE SKROMAN CLIENT OPERATIONS ------------------------------------------- //
 
 func (repo *user_repository) CreateSkromanClient(args db.CreateSkromanUserParams) (db.SkromanClient, error) {
@@ -126,4 +142,18 @@ func (repo *user_repository) UpdateSkromanClientInfo(args db.UpdateSkromanClient
 	defer cancel()
 
 	return repo.db.Queries.UpdateSkromanClientInfo(ctx, args)
+}
+
+func (repo *user_repository) SearchClient(args db.SearchClientParams) ([]db.SkromanClient, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.SearchClient(ctx, args)
+}
+
+func (repo *user_repository) CountOfSearchClient(search_data sql.NullString) (int64, error) {
+	ctx, cancel := repo.Init()
+	defer cancel()
+
+	return repo.db.Queries.CountOfSearchClient(ctx, search_data)
 }

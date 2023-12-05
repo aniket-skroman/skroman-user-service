@@ -2,6 +2,7 @@ package querytest
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"testing"
 
@@ -139,4 +140,22 @@ func TestUsersByDepartment(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, users)
 
+}
+
+func TestSearchUsers(t *testing.T) {
+	data := sql.NullString{String: "7", Valid: true}
+	args := db.SearchUsersParams{
+		Limit:   10,
+		Offset:  0,
+		Column3: data,
+	}
+
+	users, err := testQueries.SearchUsers(context.Background(), args)
+	require.NoError(t, err)
+
+	fmt.Println("Search data len : ", len(users))
+
+	count, err := testQueries.CountOfSearchUsers(context.Background(), data)
+	require.NoError(t, err)
+	fmt.Println("Search total count : ", count)
 }

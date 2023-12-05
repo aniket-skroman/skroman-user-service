@@ -50,4 +50,10 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 		skroman_client.GET("/client/:client_id", user_cont.FetchClientById)
 		skroman_client.PUT("client/:client_id", user_cont.UpdateSkromanClientInfo)
 	}
+
+	search := router.Group("/api/search", middleware.AuthorizeJWT(jwt_service))
+	{
+		search.GET("/client/:page_id/:page_size/:search_data", user_cont.SearchClient)
+		search.GET("/user/:page_id/:page_size/:search_data", user_cont.SearchUsers)
+	}
 }

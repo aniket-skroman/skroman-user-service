@@ -23,6 +23,19 @@ func (q *Queries) CountOFClients(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countOfSearchClient = `-- name: CountOfSearchClient :one
+select count(*) from skroman_client
+where concat(user_name,email,contact,address,city,state,pincode) like '%' || $1 || '%'
+`
+
+// count of search client obj
+func (q *Queries) CountOfSearchClient(ctx context.Context, dollar_1 sql.NullString) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countOfSearchClient, dollar_1)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createSkromanUser = `-- name: CreateSkromanUser :one
 insert into skroman_client (
     user_name,
@@ -157,6 +170,56 @@ func (q *Queries) FetchClientById(ctx context.Context, id uuid.UUID) (SkromanCli
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const searchClient = `-- name: SearchClient :many
+select s.id, s.user_name, s.email, s.password, s.contact, s.address, s.city, s.state, s.pincode, s.created_at, s.updated_at
+from skroman_client s
+where concat(user_name,email,contact,address,city,state,pincode) like '%' || $3 || '%'
+limit $1
+offset $2
+`
+
+type SearchClientParams struct {
+	Limit   int32          `json:"limit"`
+	Offset  int32          `json:"offset"`
+	Column3 sql.NullString `json:"column_3"`
+}
+
+// search a skroman client with any field
+func (q *Queries) SearchClient(ctx context.Context, arg SearchClientParams) ([]SkromanClient, error) {
+	rows, err := q.db.QueryContext(ctx, searchClient, arg.Limit, arg.Offset, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SkromanClient{}
+	for rows.Next() {
+		var i SkromanClient
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserName,
+			&i.Email,
+			&i.Password,
+			&i.Contact,
+			&i.Address,
+			&i.City,
+			&i.State,
+			&i.Pincode,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateSkromanClientInfo = `-- name: UpdateSkromanClientInfo :one

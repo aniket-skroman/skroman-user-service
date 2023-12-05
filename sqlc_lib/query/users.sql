@@ -70,3 +70,27 @@ offset $3;
 -- name: CountUsersByDepartment :one
 select count(*) from users 
 where department = $1;
+
+/*
+    full_name,
+    email,
+    password,
+    contact,
+    user_type,
+    department,
+    emp_code
+
+*/
+
+/* search emp */
+-- name: SearchUsers :many
+select * from users
+where concat(full_name,email,contact, user_type, emp_code) like '%' || $3 || '%'
+limit $1
+offset $2;
+
+
+/* count of search emp */
+-- name: CountOfSearchUsers :one
+select count(*) from users 
+where concat(full_name,email,contact, user_type, emp_code) like '%' || $1 || '%';

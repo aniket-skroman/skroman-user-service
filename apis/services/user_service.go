@@ -22,6 +22,7 @@ type UserService interface {
 	GetUsersCount() int32
 	FetchUserById(uuid.UUID) (dtos.UserDTO, error)
 	GetUsersByDepartmentCount(dep_name string) (int64, error)
+	SearchUsers(req dtos.SearchClientRequestDTO) ([]dtos.UserDTO, error)
 
 	CreateSkromanClient(req dtos.CreateSkromanClientRequestDTO) (dtos.SkromanClientDTO, error)
 	FetchAllClients(req dtos.GetUsersRequestParams) ([]dtos.SkromanClientDTO, error)
@@ -29,6 +30,7 @@ type UserService interface {
 	CountOFClients() (int64, error)
 	FetchClientById(client_id string) (dtos.SkromanClientDTO, error)
 	UpdateSkromanClientInfo(req dtos.UpdateSkromanClientInfoRequestDTO) (dtos.SkromanClientDTO, error)
+	SearchClient(req dtos.SearchClientRequestDTO) ([]dtos.SkromanClientDTO, error)
 }
 
 type user_service struct {
@@ -297,15 +299,64 @@ func (ser *user_service) FetchUserById(user_id uuid.UUID) (dtos.UserDTO, error) 
 
 	user := new(dtos.UserDTO).MakeUserDTO("", result)
 
-	// if reflect.DeepEqual(user.(dtos.UserDTO), dtos.UserDTO{}) {
-	// 	return dtos.UserDTO{}, helper.Err_Data_Not_Found
-	// }
-
 	if (user.(dtos.UserDTO) == dtos.UserDTO{}) {
 		return dtos.UserDTO{}, helper.Err_Data_Not_Found
 	}
 
 	return user.(dtos.UserDTO), nil
+}
+
+func (ser *user_service) SearchUsers(req dtos.SearchClientRequestDTO) ([]dtos.UserDTO, error) {
+	var users []dtos.UserDTO
+	var err_ error
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		args := db.SearchUsersParams{
+			Limit:   req.PageSize,
+			Offset:  (req.PageID - 1) * req.PageSize,
+			Column3: sql.NullString{String: req.SearchData, Valid: true},
+		}
+
+		result, err := ser.user_repo.SearchUsers(args)
+
+		if err != nil {
+			err_ = err
+			return
+		}
+
+		if len(result) == 0 {
+			err_ = helper.Err_Data_Not_Found
+			return
+		}
+
+		users = make([]dtos.UserDTO, len(result))
+		t_wg := sync.WaitGroup{}
+
+		for i := range result {
+			t_wg.Add(1)
+			go ser.setUserData(&t_wg, &users[i], &result[i])
+		}
+
+		t_wg.Wait()
+
+	}()
+
+	go func() {
+		defer wg.Done()
+		count, _ := ser.count_of_users(sql.NullString{String: req.SearchData, Valid: true})
+		utils.SetPaginationData(int(req.PageID), count)
+	}()
+
+	wg.Wait()
+
+	return users, err_
+}
+
+func (ser *user_service) count_of_users(search_data sql.NullString) (int64, error) {
+	return ser.user_repo.CountOfSearchUsers(search_data)
 }
 
 //----------------------------------- 	HANDLE SKROMAN CLIENT OPERATIONS ------------------------------------------- //
@@ -512,4 +563,66 @@ func (ser *user_service) UpdateSkromanClientInfo(req dtos.UpdateSkromanClientInf
 		CreatedAt: result.CreatedAt,
 		UpdatedAt: result.UpdatedAt,
 	}, nil
+}
+
+func (ser *user_service) SearchClient(req dtos.SearchClientRequestDTO) ([]dtos.SkromanClientDTO, error) {
+	wg := sync.WaitGroup{}
+	var skroman_clinets []dtos.SkromanClientDTO
+	err_chan := make(chan error)
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		// prepare args
+		args := db.SearchClientParams{
+			Limit:   req.PageSize,
+			Offset:  (req.PageID - 1) * req.PageSize,
+			Column3: sql.NullString{String: req.SearchData, Valid: true},
+		}
+
+		clients, err := ser.user_repo.SearchClient(args)
+
+		if err != nil {
+			err_chan <- err
+			return
+		}
+
+		if len(clients) == 0 {
+			err_chan <- helper.Err_Data_Not_Found
+			return
+		}
+
+		t_wg := sync.WaitGroup{}
+		skroman_clinets = make([]dtos.SkromanClientDTO, len(clients))
+
+		for i := range clients {
+			t_wg.Add(1)
+			go ser.setSkromanClientData(&t_wg, &skroman_clinets[i], &clients[i])
+		}
+		t_wg.Wait()
+	}()
+
+	go func() {
+		defer wg.Done()
+		count, _ := ser.count_of_search_client(sql.NullString{String: req.SearchData, Valid: true})
+		utils.SetPaginationData(int(req.PageID), count)
+	}()
+
+	go func() {
+		wg.Wait()
+		close(err_chan)
+	}()
+
+	for data_err := range err_chan {
+		if data_err != nil {
+			return nil, data_err
+		}
+	}
+
+	return skroman_clinets, nil
+}
+
+func (ser *user_service) count_of_search_client(req sql.NullString) (int64, error) {
+	return ser.user_repo.CountOfSearchClient(req)
 }

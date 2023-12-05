@@ -60,6 +60,19 @@ func (q *Queries) CheckForContact(ctx context.Context, arg CheckForContactParams
 	return i, err
 }
 
+const countOfSearchUsers = `-- name: CountOfSearchUsers :one
+select count(*) from users 
+where concat(full_name,email,contact, user_type, emp_code) like '%' || $1 || '%'
+`
+
+// count of search emp
+func (q *Queries) CountOfSearchUsers(ctx context.Context, dollar_1 sql.NullString) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countOfSearchUsers, dollar_1)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countUsers = `-- name: CountUsers :one
 select count(*) from users
 `
@@ -239,6 +252,65 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (Users, error) 
 		&i.EmpCode,
 	)
 	return i, err
+}
+
+const searchUsers = `-- name: SearchUsers :many
+/*
+    full_name,
+    email,
+    password,
+    contact,
+    user_type,
+    department,
+    emp_code
+
+*/
+
+select id, full_name, email, password, contact, user_type, created_at, updated_at, department, emp_code from users
+where concat(full_name,email,contact, user_type, emp_code) like '%' || $3 || '%'
+limit $1
+offset $2
+`
+
+type SearchUsersParams struct {
+	Limit   int32          `json:"limit"`
+	Offset  int32          `json:"offset"`
+	Column3 sql.NullString `json:"column_3"`
+}
+
+// search emp
+func (q *Queries) SearchUsers(ctx context.Context, arg SearchUsersParams) ([]Users, error) {
+	rows, err := q.db.QueryContext(ctx, searchUsers, arg.Limit, arg.Offset, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Users{}
+	for rows.Next() {
+		var i Users
+		if err := rows.Scan(
+			&i.ID,
+			&i.FullName,
+			&i.Email,
+			&i.Password,
+			&i.Contact,
+			&i.UserType,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Department,
+			&i.EmpCode,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateUser = `-- name: UpdateUser :execresult

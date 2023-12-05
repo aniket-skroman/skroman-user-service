@@ -41,3 +41,17 @@ address=$6,city=$7,state=$8,pincode=$9,
 updated_at = CURRENT_TIMESTAMP
 where id=$1
 returning * ;
+
+/* search a skroman client with any field */
+-- name: SearchClient :many
+select s.*
+from skroman_client s
+where concat(user_name,email,contact,address,city,state,pincode) like '%' || $3 || '%'
+limit $1
+offset $2
+; 
+
+/* count of search client obj */
+-- name: CountOfSearchClient :one
+select count(*) from skroman_client
+where concat(user_name,email,contact,address,city,state,pincode) like '%' || $1 || '%';

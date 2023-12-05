@@ -23,6 +23,8 @@ type UserRepository interface {
 	FetchUserById(uuid.UUID) (db.Users, error)
 	FetchUsersByDepartment(args db.UsersByDepartmentParams) ([]db.Users, error)
 	CountUserByDepartment(dept_name string) (int64, error)
+	SearchUsers(args db.SearchUsersParams) ([]db.Users, error)
+	CountOfSearchUsers(args sql.NullString) (int64, error)
 
 	CreateSkromanClient(args db.CreateSkromanUserParams) (db.SkromanClient, error)
 	FetchAllClients(args db.FetchAllClientsParams) ([]db.SkromanClient, error)
@@ -30,6 +32,8 @@ type UserRepository interface {
 	DeleteClient(client_id uuid.UUID) (sql.Result, error)
 	FetchClientById(client_id uuid.UUID) (db.SkromanClient, error)
 	UpdateSkromanClientInfo(args db.UpdateSkromanClientInfoParams) (db.SkromanClient, error)
+	SearchClient(args db.SearchClientParams) ([]db.SkromanClient, error)
+	CountOfSearchClient(search_data sql.NullString) (int64, error)
 }
 
 type user_repository struct {

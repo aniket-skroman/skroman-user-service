@@ -108,6 +108,12 @@ type UpdateSkromanClientInfoRequestDTO struct {
 	CreateSkromanClientRequestDTO
 }
 
+type SearchClientRequestDTO struct {
+	PageID     int32  `uri:"page_id" binding:"required"`
+	PageSize   int32  `uri:"page_size" binding:"required"`
+	SearchData string `uri:"search_data" binding:"required"`
+}
+
 type SkromanClientDTO struct {
 	ID        uuid.UUID `json:"id"`
 	UserName  string    `json:"user_name" `

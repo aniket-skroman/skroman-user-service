@@ -3,6 +3,7 @@ package querytest
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"testing"
 
@@ -78,4 +79,24 @@ func TestUpdateSkromanClient(t *testing.T) {
 	client, err := testQueries.UpdateSkromanClientInfo(context.Background(), args)
 	require.NoError(t, err)
 	require.NotEmpty(t, client)
+}
+
+func TestSearchSkromanClient(t *testing.T) {
+	data := "na@na.com"
+	args := db.SearchClientParams{
+		Limit:   100,
+		Offset:  1,
+		Column3: sql.NullString{String: data, Valid: true},
+	}
+	result, err := testQueries.SearchClient(context.Background(), args)
+	require.NoError(t, err)
+
+	fmt.Println("Count of data", len(result))
+
+	// count
+	count, err := testQueries.CountOfSearchClient(context.Background(), sql.NullString{String: data, Valid: true})
+	require.NoError(t, err)
+	require.NotZero(t, count)
+
+	fmt.Println("Total count : ", count)
 }
