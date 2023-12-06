@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/aniket-skroman/skroman-user-service/apis/services"
 	"github.com/aniket-skroman/skroman-user-service/utils"
@@ -36,22 +35,13 @@ func (cont *auth_cont) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	token, err := cont.jwt_service.ValidateToken(authHeader)
-	var n_token string
-	if err != nil {
-		if strings.Contains(err.Error(), "expired") {
-			// will generate new token
-			claims := token.Claims.(jwt.MapClaims)
-			user_id := fmt.Sprintf("%v", claims["user_id"])
-			user_type := fmt.Sprintf("%v", claims["user_type"])
-			dept := fmt.Sprintf("%v", claims["dept"])
+	token, _ := cont.jwt_service.ValidateToken(authHeader)
+	claims := token.Claims.(jwt.MapClaims)
+	user_id := fmt.Sprintf("%v", claims["user_id"])
+	user_type := fmt.Sprintf("%v", claims["user_type"])
+	dept := fmt.Sprintf("%v", claims["dept"])
 
-			n_token = cont.jwt_service.GenerateToken(user_id, user_type, dept)
-		}
-		response := utils.BuildFailedResponse("Failed to refresh token !")
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+	n_token := cont.jwt_service.GenerateToken(user_id, user_type, dept)
 
 	cont.response = utils.BuildSuccessResponse("Token has been refreshed", "access_token", n_token)
 	ctx.JSON(http.StatusOK, cont.response)
