@@ -170,6 +170,7 @@ func (ser *user_service) UpdateUser(req dtos.UpdateUserRequestDTO) (dtos.UserDTO
 		FullName: req.FullName,
 		Contact:  req.Contact,
 		UserType: req.UserType,
+		EmpCode:  req.EmpCode,
 	}, nil
 }
 
