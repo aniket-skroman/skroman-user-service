@@ -59,7 +59,7 @@ func (api *APIServer) make_app_route(route *gin.Engine, db *sql.DB) {
 	store := apis.NewStore(db)
 
 	routers.UserRouters(route, store)
-
+	routers.FcmRouter(route, store)
 }
 
 func (api *APIServer) run_app(route *gin.Engine) error {

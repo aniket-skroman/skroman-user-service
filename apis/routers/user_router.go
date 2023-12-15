@@ -9,14 +9,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	user_repo   repositories.UserRepository
+	jwt_service services.JWTService
+	user_serv   services.UserService
+	auth_cont   controller.AuthController
+	user_cont   controller.UserController
+)
+
 func UserRouters(router *gin.Engine, store *apis.Store) {
-	var (
-		user_repo   = repositories.NewUserRepository(store)
-		jwt_service = services.NewJWTService()
-		user_serv   = services.NewUserService(user_repo, jwt_service)
-		auth_cont   = controller.NewAuthController(jwt_service)
-		user_cont   = controller.NewUserController(user_serv)
-	)
+	user_repo = repositories.NewUserRepository(store)
+	jwt_service = services.NewJWTService()
+	user_serv = services.NewUserService(user_repo, jwt_service)
+	auth_cont = controller.NewAuthController(jwt_service)
+	user_cont = controller.NewUserController(user_serv)
 
 	user_auth := router.Group("/api")
 	{
