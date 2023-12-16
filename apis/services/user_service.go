@@ -109,10 +109,10 @@ func (ser *user_service) FetchUserByEmail(req dtos.LoginUserRequestDTO) (dtos.Us
 
 	go func() {
 		defer wg.Done()
-		user_id, _ := helper.EncryptData(user.ID.String())
-		user_type, _ := helper.EncryptData(user.UserType)
-		dept, _ := helper.EncryptData(user.Department)
-		token := ser.jwt_service.GenerateToken(user_id, user_type, dept)
+		// user_id, _ := helper.EncryptData(user.ID.String())
+		// user_type, _ := helper.EncryptData(user.UserType)
+		// dept, _ := helper.EncryptData(user.Department)
+		token := ser.jwt_service.GenerateToken(user.ID.String(), user.UserType, user.Department)
 		n_user = new(dtos.UserDTO).MakeUserDTO(token, user)
 	}()
 
