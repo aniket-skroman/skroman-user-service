@@ -65,4 +65,6 @@ func UserRouters(router *gin.Engine, store *apis.Store) {
 		search.GET("/client/:page_id/:page_size/:search_data", user_cont.SearchClient)
 		search.GET("/user/:page_id/:page_size/:search_data", user_cont.SearchUsers)
 	}
+
+	router.GET("/api/user/:user_id", user_cont.EMPById)
 }

@@ -29,6 +29,7 @@ type UserController interface {
 	FetchClientById(ctx *gin.Context)
 	UpdateSkromanClientInfo(ctx *gin.Context)
 	SearchClient(ctx *gin.Context)
+	EMPById(ctx *gin.Context)
 }
 
 type user_controller struct {
@@ -208,6 +209,35 @@ func (cont *user_controller) FetchUserById(ctx *gin.Context) {
 	}
 
 	user, err := cont.user_ser.FetchUserById(user_id)
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(err.Error())
+
+		if err == helper.Err_Data_Not_Found {
+			ctx.JSON(http.StatusNotFound, cont.response)
+			return
+		}
+
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	response := utils.BuildSuccessResponse(utils.FETCHED_SUCCESS, utils.USER_DATA, user)
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (cont *user_controller) EMPById(ctx *gin.Context) {
+	user_id := ctx.Param("user_id")
+
+	user_obj_id, err := uuid.Parse(user_id)
+
+	if err != nil {
+		cont.response = utils.BuildFailedResponse(helper.ERR_INVALID_ID.Error())
+		ctx.JSON(http.StatusBadRequest, cont.response)
+		return
+	}
+
+	user, err := cont.user_ser.FetchUserById(user_obj_id)
 
 	if err != nil {
 		cont.response = utils.BuildFailedResponse(err.Error())
